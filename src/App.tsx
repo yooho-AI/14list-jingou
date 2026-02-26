@@ -27,16 +27,15 @@ const ENDING_TYPE_MAP: Record<string, { label: string; color: string; icon: stri
 // ── StartScreen ──────────────────────────────────────
 
 function StartScreen() {
-  const { setPlayerName, playerName, initGame, loadGame, hasSave } = useGameStore()
+  const { initGame, loadGame, hasSave } = useGameStore()
   const { isPlaying: musicOn, toggle: handleMusic } = useBgm()
   const previewChars = Object.values(buildCharacters()).slice(0, 6)
   const saved = hasSave()
 
   const handleStart = useCallback(() => {
-    if (!playerName.trim()) return
     trackGameStart()
     initGame()
-  }, [playerName, initGame])
+  }, [initGame])
 
   const handleContinue = useCallback(() => {
     trackGameContinue()
@@ -69,31 +68,29 @@ function StartScreen() {
           ))}
         </div>
 
-        {/* 姓名输入 */}
-        <input
-          type="text"
-          className={`${P}-name-input`}
-          placeholder="你的名字（林承义）"
-          value={playerName}
-          onChange={(e) => setPlayerName(e.target.value)}
-          maxLength={8}
-          onKeyDown={(e) => e.key === 'Enter' && handleStart()}
-        />
+        {/* 固定角色身份 */}
+        <div style={{
+          padding: '12px 20px', marginBottom: 20,
+          background: 'var(--primary-light)', border: '1px solid var(--primary-border)',
+          borderRadius: 14, maxWidth: 280, width: '100%',
+        }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>你将扮演</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--primary)' }}>林承义</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>山东逃荒汉，陈大哥的兄弟，巧珍的丈夫</div>
+        </div>
 
         {/* 操作按钮 */}
-        <button
-          className={`${P}-start-btn`}
-          onClick={handleStart}
-          disabled={!playerName.trim()}
-        >
-          进入金沟
-        </button>
-
-        {saved && (
-          <button className={`${P}-continue-btn`} onClick={handleContinue}>
-            📖 继续上次
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <button className={`${P}-start-btn`} onClick={handleStart}>
+            进入金沟
           </button>
-        )}
+
+          {saved && (
+            <button className={`${P}-continue-btn`} onClick={handleContinue}>
+              📖 继续上次
+            </button>
+          )}
+        </div>
 
         <button
           className={`${P}-icon-btn`}

@@ -20,8 +20,22 @@ function LetterCard() {
       <div style={{ fontSize: 40, marginBottom: 8 }}>⛏️</div>
       <h3>{STORY_INFO.title}</h3>
       <p>{STORY_INFO.description}</p>
-      <p style={{ marginTop: 8, fontSize: 12, color: 'var(--text-muted)' }}>
-        {STORY_INFO.era}
+      <div style={{
+        marginTop: 16, padding: '14px 16px',
+        background: 'rgba(139,105,20,0.08)', borderRadius: 12,
+        textAlign: 'left', lineHeight: 1.8,
+      }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--primary)', marginBottom: 8 }}>📋 怎么玩</div>
+        <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0 }}>
+          🔹 <b>输入文字</b>或点击<b>快捷操作</b>与矿区互动<br />
+          🔹 在<b>「场景」Tab</b>切换地点，探索线索<br />
+          🔹 在<b>「人物」Tab</b>查看角色关系和数值变化<br />
+          🔹 收集<b>12条线索</b>，揭开搭档失踪的三层真相<br />
+          🔹 注意<b>警觉度</b>——被金把头盯上，你就是下一个失踪者
+        </p>
+      </div>
+      <p style={{ marginTop: 10, fontSize: 11, color: 'var(--text-muted)' }}>
+        {STORY_INFO.era} · 共20天 · 5种结局
       </p>
     </div>
   )

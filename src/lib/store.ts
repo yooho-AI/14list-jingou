@@ -228,13 +228,14 @@ export const useGameStore = create<GameStore>()(
       }
       set((s) => {
         s.gameStarted = true
+        s.playerName = '林承义'
         s.characters = characters
         s.characterStats = characterStats
       })
-      const state = get()
-      get().addSystemMessage(
-        `光绪三十二年。秋。你叫${state.playerName}，怀里揣着同乡陈大哥的信。零下三十度，漠河老金沟。游戏开始了。`
-      )
+      // 自动发送第一条消息，触发 AI 开场叙述
+      setTimeout(() => {
+        get().sendMessage('我带着陈大哥的信，刚到老金沟。四下看看这是个什么地方。')
+      }, 300)
     },
 
     selectCharacter: (charId: string) => {
