@@ -810,6 +810,11 @@ body {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.jg-start-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .jg-start-inner {
