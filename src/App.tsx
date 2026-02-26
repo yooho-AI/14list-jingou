@@ -30,11 +30,12 @@ function StartScreen() {
   const { initGame, loadGame, hasSave } = useGameStore()
   const { isPlaying: musicOn, toggle: handleMusic } = useBgm()
   const saved = hasSave()
+  const [folding, setFolding] = useState(false)
 
   const handleStart = useCallback(() => {
     trackGameStart()
-    initGame()
-  }, [initGame])
+    setFolding(true)
+  }, [])
 
   const handleContinue = useCallback(() => {
     trackGameContinue()
@@ -44,22 +45,41 @@ function StartScreen() {
   return (
     <div className={`${P}-start`}>
       <div className={`${P}-start-scroll`}>
+
+        {/* ── 信纸层：陈大哥的信 ── */}
+        <motion.div
+          className={`${P}-letter`}
+          initial={{ rotateX: -90, scaleY: 0.1, opacity: 0 }}
+          animate={folding
+            ? { rotateX: -90, scaleY: 0.1, opacity: 0 }
+            : { rotateX: 0, scaleY: 1, opacity: 1 }}
+          transition={folding
+            ? { duration: 0.6, ease: 'easeIn' }
+            : { type: 'spring', damping: 25, stiffness: 120 }}
+          onAnimationComplete={() => { if (folding) initGame() }}
+          style={{ transformOrigin: 'top center' }}
+        >
+          <div className={`${P}-letter-text`}>
+            <span className={`${P}-letter-line`}>承义兄弟，</span>
+            <span className={`${P}-letter-line`}>这里有活路。</span>
+            <span className={`${P}-letter-line`}>带嫂子来。</span>
+          </div>
+          <p className={`${P}-letter-sign`}>陈大哥</p>
+        </motion.div>
+
+        {/* ── 叙事层：标题 + 世界观 + 玩法 ── */}
         <motion.div
           className={`${P}-start-inner`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.2 }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={folding
+            ? { opacity: 0, y: 30 }
+            : { opacity: 1, y: 0 }}
+          transition={{ delay: folding ? 0 : 0.8, duration: 0.6 }}
         >
           <h1 className={`${P}-title`}>金沟</h1>
           <p className={`${P}-subtitle`}>白山黑水 · 卷一</p>
 
           <div className={`${P}-divider`} />
-
-          <blockquote className={`${P}-quote`}>
-            "承义兄弟，这里有活路。<br />
-            带嫂子来。"
-          </blockquote>
-          <p className={`${P}-quote-from`}>——陈大哥的信</p>
 
           <p className={`${P}-hook`}>
             你来了。<span className={`${P}-gold`}>陈大哥没了。</span>
@@ -112,7 +132,11 @@ function StartScreen() {
       </div>
 
       {/* ── 底部固定按钮 ── */}
-      <div className={`${P}-start-cta`}>
+      <motion.div
+        className={`${P}-start-cta`}
+        animate={folding ? { opacity: 0 } : { opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
         <button className={`${P}-start-btn`} onClick={handleStart}>
           ⛏️ 开始调查
         </button>
@@ -121,7 +145,7 @@ function StartScreen() {
             📖 继续上次
           </button>
         )}
-      </div>
+      </motion.div>
     </div>
   )
 }
