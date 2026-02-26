@@ -1,0 +1,15 @@
+# lib/ — 核心逻辑层
+L2 | 父级: 14list-jingou/CLAUDE.md
+
+## 成员清单
+
+- `script.md`: 五模块剧本原文(813行)，`?raw` import 直通注入 buildSystemPrompt
+- `data.ts`: UI 薄层——类型定义 + 6角色(异构StatMeta) + 7场景 + 10道具 + 4章节 + 5事件 + 5结局 + QUICK_ACTIONS
+- `store.ts`: Zustand+Immer 状态管理，GAME_SCRIPT 直通管道 + 双轨解析 + 连锁反应 + activeTab 路由
+- `parser.ts`: AI 回复解析器，角色名着色(6人) + 数值变化着色，零 data.ts 依赖避免循环
+- `analytics.ts`: Umami 埋点，`jg_` 前缀，含金沟专属事件(clue_found/chain_reaction)
+- `stream.ts`: ☆ 零修改：SSE 流式通信
+- `bgm.ts`: ☆ 零修改：背景音乐 useBgm hook
+- `hooks.ts`: ☆ 零修改：useMediaQuery / useIsMobile
+
+[PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
