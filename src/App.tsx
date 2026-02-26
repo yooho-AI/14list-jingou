@@ -26,16 +26,31 @@ const ENDING_TYPE_MAP: Record<string, { label: string; color: string; icon: stri
 
 // ── StartScreen ──────────────────────────────────────
 
+// ── 手写字拆字渲染 ────────────────────────────────────
+function HandWrite({ text }: { text: string }) {
+  return <>{[...text].map((c, i) => (
+    <span key={i} className={`${P}-letter-char`}>{c}</span>
+  ))}</>
+}
+
 function StartScreen() {
   const { initGame, loadGame, hasSave } = useGameStore()
   const { isPlaying: musicOn, toggle: handleMusic } = useBgm()
   const saved = hasSave()
-  const [folding, setFolding] = useState(false)
+  const [phase, setPhase] = useState<'letter' | 'crawl' | 'ready'>('letter')
+
+  // 信展示 2.5s 后自动进入字幕
+  useEffect(() => {
+    if (phase === 'letter') {
+      const t = setTimeout(() => setPhase('crawl'), 2500)
+      return () => clearTimeout(t)
+    }
+  }, [phase])
 
   const handleStart = useCallback(() => {
     trackGameStart()
-    setFolding(true)
-  }, [])
+    initGame()
+  }, [initGame])
 
   const handleContinue = useCallback(() => {
     trackGameContinue()
@@ -44,108 +59,151 @@ function StartScreen() {
 
   return (
     <div className={`${P}-start`}>
-      <div className={`${P}-start-scroll`}>
 
-        {/* ── 信纸层：陈大哥的信 ── */}
-        <motion.div
-          className={`${P}-letter`}
-          initial={{ rotateX: -90, scaleY: 0.1, opacity: 0 }}
-          animate={folding
-            ? { rotateX: -90, scaleY: 0.1, opacity: 0 }
-            : { rotateX: 0, scaleY: 1, opacity: 1 }}
-          transition={folding
-            ? { duration: 0.6, ease: 'easeIn' }
-            : { type: 'spring', damping: 25, stiffness: 120 }}
-          onAnimationComplete={() => { if (folding) initGame() }}
-          style={{ transformOrigin: 'top center' }}
-        >
-          <div className={`${P}-letter-text`}>
-            <span className={`${P}-letter-line`}>承义兄弟，</span>
-            <span className={`${P}-letter-line`}>这里有活路。</span>
-            <span className={`${P}-letter-line`}>带嫂子来。</span>
-          </div>
-          <p className={`${P}-letter-sign`}>陈大哥</p>
-        </motion.div>
-
-        {/* ── 叙事层：标题 + 世界观 + 玩法 ── */}
-        <motion.div
-          className={`${P}-start-inner`}
-          initial={{ opacity: 0, y: 30 }}
-          animate={folding
-            ? { opacity: 0, y: 30 }
-            : { opacity: 1, y: 0 }}
-          transition={{ delay: folding ? 0 : 0.8, duration: 0.6 }}
-        >
-          <h1 className={`${P}-title`}>金沟</h1>
-          <p className={`${P}-subtitle`}>白山黑水 · 卷一</p>
-
-          <div className={`${P}-divider`} />
-
-          <p className={`${P}-hook`}>
-            你来了。<span className={`${P}-gold`}>陈大哥没了。</span>
-          </p>
-
-          <div className={`${P}-divider`} />
-
-          <div className={`${P}-prose`}>
-            <p>光绪三十二年冬。漠河。老金沟。</p>
-            <p>
-              你叫<strong>林承义</strong>，三十五岁，山东逃荒汉。<br />
-              带着怀孕的妻子巧珍，一路北上投奔搭档。
-            </p>
-            <p>
-              他的靰鞡鞋整整齐齐摆在门口。<br />
-              零下四十度，<strong>没有人光脚出门</strong>。
-            </p>
-            <p>
-              <span className={`${P}-gold`}>金把头</span>一手遮天。工人们讳莫如深。<br />
-              没人愿意提起失踪的事。
-            </p>
-          </div>
-
-          <div className={`${P}-divider`} />
-
-          <div className={`${P}-prose`}>
-            <p>
-              <strong>20天</strong>。收集<strong>12条线索</strong>。<br />
-              与矿区众人周旋——有人是帮手，有人是威胁。
-            </p>
-            <p>
-              控制<span className={`${P}-gold`}>警觉度</span>。<br />
-              被金把头盯上，你就是下一个失踪者。
-            </p>
-          </div>
-
-          <div className={`${P}-divider`} />
-
-          <p className={`${P}-howto`}>
-            输入文字与矿区互动<br />
-            切换「场景」探索地点，「人物」查看关系
-          </p>
-
-          <p className={`${P}-start-meta`}>5种结局 · AI驱动叙事</p>
-
-          <button className={`${P}-icon-btn`} onClick={handleMusic} style={{ marginTop: 4 }}>
-            {musicOn ? '🔊' : '🔇'}
-          </button>
-        </motion.div>
-      </div>
-
-      {/* ── 底部固定按钮 ── */}
-      <motion.div
-        className={`${P}-start-cta`}
-        animate={folding ? { opacity: 0 } : { opacity: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        <button className={`${P}-start-btn`} onClick={handleStart}>
-          ⛏️ 开始调查
-        </button>
-        {saved && (
-          <button className={`${P}-continue-btn`} onClick={handleContinue}>
-            📖 继续上次
-          </button>
+      {/* ── 第一幕：信 ── */}
+      <AnimatePresence>
+        {phase === 'letter' && (
+          <motion.div
+            className={`${P}-letter-scene`}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className={`${P}-letter`}>
+              <div className={`${P}-letter-text`}>
+                <span className={`${P}-letter-line`}><HandWrite text="承义兄弟，" /></span>
+                <span className={`${P}-letter-line`}><HandWrite text="这里有活路。" /></span>
+                <span className={`${P}-letter-line`}><HandWrite text="带嫂子来。" /></span>
+              </div>
+              <p className={`${P}-letter-sign`}><HandWrite text="陈大哥" /></p>
+            </div>
+          </motion.div>
         )}
-      </motion.div>
+      </AnimatePresence>
+
+      {/* ── 第二幕：电影字幕 ── */}
+      <AnimatePresence>
+        {phase === 'crawl' && (
+          <motion.div
+            className={`${P}-crawl-scene`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+          >
+            <div
+              className={`${P}-crawl`}
+              onAnimationEnd={() => setPhase('ready')}
+            >
+              <p className={`${P}-crawl-era`}>光绪三十二年</p>
+
+              <div className={`${P}-crawl-block`}>
+                <p>大清国运将尽</p>
+                <p>东北莽林深处</p>
+                <p>漠河金矿却正鼎盛</p>
+              </div>
+
+              <div className={`${P}-crawl-block`}>
+                <p>朝廷设金厂</p>
+                <p>民间称"老金沟"</p>
+                <p>千余苦力日夜掘金</p>
+                <p>黄金出山&#12288;&#12288;血肉入土</p>
+              </div>
+
+              <div className={`${P}-crawl-block`}>
+                <p>三个月前</p>
+                <p>你收到搭档陈大哥的信</p>
+                <p>信上说这里有活路</p>
+              </div>
+
+              <div className={`${P}-crawl-block`}>
+                <p>你叫林承义</p>
+                <p>山东人&#12288;三十五岁</p>
+                <p>种了半辈子地&#12288;颗粒无收</p>
+                <p>带着怀孕的妻子巧珍</p>
+                <p>变卖家当&#12288;一路北上</p>
+              </div>
+
+              <div className={`${P}-crawl-block`}>
+                <p>腊月十九</p>
+                <p>你到了老金沟</p>
+              </div>
+
+              <div className={`${P}-crawl-block`}>
+                <p>陈大哥的窝棚还在</p>
+                <p>他的靰鞡鞋整齐摆在门口</p>
+                <p>灶台的灰是冷的</p>
+              </div>
+
+              <div className={`${P}-crawl-block`}>
+                <p>零下四十度</p>
+                <p>没有人光脚出门</p>
+              </div>
+
+              <div className={`${P}-crawl-block`}>
+                <p>你问了一圈</p>
+                <p>没人说见过他</p>
+                <p>没人愿意多说一个字</p>
+              </div>
+
+              <div className={`${P}-crawl-block`}>
+                <p>只有工头老孙头</p>
+                <p>压低声音讲了句——</p>
+              </div>
+
+              <p className={`${P}-crawl-hook`}>"别问了&#12288;好好挖你的金"</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── 跳过按钮 ── */}
+      <AnimatePresence>
+        {phase === 'crawl' && (
+          <motion.button
+            className={`${P}-skip-btn`}
+            onClick={() => setPhase('ready')}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ delay: 1 }}
+          >
+            跳过 ›
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* ── 第三幕：标题 + CTA ── */}
+      <AnimatePresence>
+        {phase === 'ready' && (
+          <motion.div
+            className={`${P}-ready-scene`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+          >
+            <h1 className={`${P}-title`}>金沟</h1>
+            <p className={`${P}-subtitle`}>白山黑水 · 卷一</p>
+            <p className={`${P}-start-meta`}>5种结局 · AI驱动叙事</p>
+
+            <button className={`${P}-icon-btn`} onClick={handleMusic} style={{ marginTop: 12 }}>
+              {musicOn ? '🔊' : '🔇'}
+            </button>
+
+            <div className={`${P}-start-cta`}>
+              <button className={`${P}-start-btn`} onClick={handleStart}>
+                ⛏️ 开始调查
+              </button>
+              {saved && (
+                <button className={`${P}-continue-btn`} onClick={handleContinue}>
+                  📖 继续上次
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
