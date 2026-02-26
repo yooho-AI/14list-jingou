@@ -798,22 +798,39 @@ body {
 
 /* ── 开场页 ────────────────────────────────────────── */
 .jg-start {
-  min-height: 100dvh;
-  padding: 0;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
   background:
     radial-gradient(ellipse at 50% 20%, rgba(139, 105, 20, 0.12) 0%, transparent 60%),
     var(--bg-secondary);
+}
+
+.jg-start-scroll {
+  flex: 1;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .jg-start-inner {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 48px 20px 40px;
+  padding: 48px 20px 24px;
   max-width: 400px;
   margin: 0 auto;
   text-align: center;
+}
+
+/* ── 底部固定 CTA ── */
+.jg-start-cta {
+  flex-shrink: 0;
+  padding: 12px 20px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
+  background: linear-gradient(to top, var(--bg-secondary) 60%, transparent);
 }
 
 .jg-start-emoji {
