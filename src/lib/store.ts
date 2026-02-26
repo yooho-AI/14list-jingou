@@ -45,6 +45,8 @@ interface GameState {
 
   endingType: string | null
   activeTab: 'dialogue' | 'scene' | 'character'
+  storyRecords: Array<{ id: string; day: number; period: string; title: string; content: string }>
+  showRecords: boolean
 }
 
 interface GameActions {
@@ -53,6 +55,8 @@ interface GameActions {
   selectCharacter: (charId: string) => void
   selectScene: (sceneId: string) => void
   setActiveTab: (tab: 'dialogue' | 'scene' | 'character') => void
+  addStoryRecord: (title: string, content: string) => void
+  toggleRecords: () => void
   sendMessage: (text: string) => Promise<void>
   advanceTime: () => void
   useItem: (itemId: string) => void
@@ -213,6 +217,8 @@ export const useGameStore = create<GameStore>()(
 
     endingType: null,
     activeTab: 'dialogue' as const,
+    storyRecords: [],
+    showRecords: false,
 
     // ── Actions ──
 
@@ -232,6 +238,7 @@ export const useGameStore = create<GameStore>()(
         s.characters = characters
         s.characterStats = characterStats
       })
+      get().addStoryRecord('抵达金沟', '你带着陈大哥的信，踏上了这片冰冷的矿区。寻找失踪搭档陈大哥的旅程开始了。')
       // 自动发送第一条消息，触发 AI 开场叙述
       setTimeout(() => {
         get().sendMessage('我带着陈大哥的信，刚到老金沟。四下看看这是个什么地方。')
@@ -257,6 +264,23 @@ export const useGameStore = create<GameStore>()(
 
     setActiveTab: (tab) => {
       set((s) => { s.activeTab = tab })
+    },
+
+    addStoryRecord: (title: string, content: string) => {
+      const state = get()
+      set((s) => {
+        s.storyRecords.push({
+          id: `rec-${Date.now()}`,
+          day: state.currentDay,
+          period: PERIODS[state.currentPeriodIndex].name,
+          title,
+          content,
+        })
+      })
+    },
+
+    toggleRecords: () => {
+      set((s) => { s.showRecords = !s.showRecords })
     },
 
     sendMessage: async (text: string) => {
@@ -366,6 +390,13 @@ export const useGameStore = create<GameStore>()(
           const newChapter = getCurrentChapter(s.currentDay)
           if (newChapter.id !== s.currentChapter) {
             s.currentChapter = newChapter.id
+            s.storyRecords.push({
+              id: `rec-ch-${newChapter.id}`,
+              day: s.currentDay,
+              period: PERIODS[0].name,
+              title: `📖 进入${newChapter.name}`,
+              content: newChapter.description ?? `第${newChapter.id}幕开始`,
+            })
           }
         }
       })
@@ -377,7 +408,16 @@ export const useGameStore = create<GameStore>()(
       const events = getDayEvents(state.currentDay, state.triggeredEvents)
       for (const event of events) {
         if (event.triggerPeriod === undefined || event.triggerPeriod === state.currentPeriodIndex) {
-          set((s) => { s.triggeredEvents.push(event.id) })
+          set((s) => {
+            s.triggeredEvents.push(event.id)
+            s.storyRecords.push({
+              id: `rec-evt-${event.id}`,
+              day: state.currentDay,
+              period: PERIODS[state.currentPeriodIndex].name,
+              title: `🎬 ${event.name}`,
+              content: event.description,
+            })
+          })
           get().addSystemMessage(`🎬 【${event.name}】${event.description}`)
         }
       }
@@ -438,6 +478,8 @@ export const useGameStore = create<GameStore>()(
         s.streamingContent = ''
         s.endingType = null
         s.activeTab = 'dialogue'
+        s.storyRecords = []
+        s.showRecords = false
       })
     },
 
@@ -462,6 +504,7 @@ export const useGameStore = create<GameStore>()(
         historySummary: s.historySummary,
         endingType: s.endingType,
         activeTab: s.activeTab,
+        storyRecords: s.storyRecords,
       }
       localStorage.setItem(SAVE_KEY, JSON.stringify(data))
     },
@@ -490,6 +533,7 @@ export const useGameStore = create<GameStore>()(
           s.historySummary = data.historySummary ?? ''
           s.endingType = data.endingType
           s.activeTab = data.activeTab ?? 'dialogue'
+          s.storyRecords = data.storyRecords ?? []
         })
       } catch { /* 存档损坏，忽略 */ }
     },

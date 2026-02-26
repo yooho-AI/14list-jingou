@@ -1120,6 +1120,77 @@ body {
   line-height: 1.4;
 }
 
+/* ── 记录面板 ──────────────────────────────────────── */
+.jg-record-sheet {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 85%;
+  max-width: 360px;
+  background: var(--bg-primary);
+  border-left: 1px solid var(--border);
+  padding: 20px 16px;
+  padding-top: calc(16px + env(safe-area-inset-top));
+  overflow-y: auto;
+  z-index: 160;
+}
+
+.jg-record-timeline {
+  position: relative;
+  padding-left: 20px;
+}
+
+.jg-record-timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+
+.jg-record-item {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.jg-record-dot {
+  position: absolute;
+  left: -20px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--bg-primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.jg-record-body {
+  padding-left: 4px;
+}
+
+.jg-record-meta {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.jg-record-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.jg-record-content {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
 /* ── story-paragraph 段落 ──────────────────────────── */
 .jg-story-paragraph p {
   margin-bottom: 6px;
