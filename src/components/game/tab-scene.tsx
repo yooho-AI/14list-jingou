@@ -30,10 +30,13 @@ export default function TabScene() {
       {/* 场景大图 */}
       {scene && (
         <div className={`${P}-scene-hero`}>
-          <img
-            src={scene.background}
-            alt={scene.name}
-          />
+          {scene.background.startsWith('/') ? (
+            <img src={scene.background} alt={scene.name} />
+          ) : (
+            <div style={{ width: '100%', aspectRatio: '9/16', background: 'var(--bg-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 80 }}>
+              {scene.background}
+            </div>
+          )}
           <div className={`${P}-scene-hero-overlay`}>
             <h3>{scene.icon} {scene.name}</h3>
             <p>{scene.description}</p>
@@ -58,12 +61,11 @@ export default function TabScene() {
             style={{ flex: '0 0 auto' }}
             onClick={() => handleCharClick(id)}
           >
-            <img
-              src={char.portrait}
-              alt={char.name}
-              className={`${P}-char-avatar`}
-              style={{ width: 32, height: 32, borderRadius: 8 }}
-            />
+            {char.portrait.startsWith('/') ? (
+              <img src={char.portrait} alt={char.name} className={`${P}-char-avatar`} style={{ width: 32, height: 32, borderRadius: 8 }} />
+            ) : (
+              <span style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--bg-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{char.portrait}</span>
+            )}
             <span style={{ fontSize: 13 }}>{char.name}</span>
           </div>
         ))}

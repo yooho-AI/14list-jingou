@@ -92,11 +92,11 @@ function RelationGraph() {
         const stats = characterStats[id]
         return (
           <div key={id} className={`${P}-relation-card`}>
-            <img
-              src={char.portrait}
-              alt={char.name}
-              className={`${P}-relation-avatar`}
-            />
+            {char.portrait.startsWith('/') ? (
+              <img src={char.portrait} alt={char.name} className={`${P}-relation-avatar`} />
+            ) : (
+              <span className={`${P}-relation-avatar`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, background: 'var(--bg-hover)' }}>{char.portrait}</span>
+            )}
             <span className={`${P}-relation-name`}>{char.name}</span>
             <div className={`${P}-relation-values`}>
               {char.statMetas
@@ -144,10 +144,13 @@ export default function TabCharacter() {
       {/* 角色立绘 */}
       {char ? (
         <div className={`${P}-portrait-hero`}>
-          <img
-            src={char.portrait}
-            alt={char.name}
-          />
+          {char.portrait.startsWith('/') ? (
+            <img src={char.portrait} alt={char.name} />
+          ) : (
+            <div style={{ width: '100%', aspectRatio: '9/16', background: 'var(--bg-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 80 }}>
+              {char.portrait}
+            </div>
+          )}
           <div className={`${P}-portrait-hero-overlay`}>
             <h3>{char.name}</h3>
             <div className={`${P}-char-title`}>{char.title}</div>
@@ -193,11 +196,11 @@ export default function TabCharacter() {
               className={`${P}-char-tag ${isActive ? `${P}-char-tag-active` : ''}`}
               onClick={() => selectCharacter(id)}
             >
-              <img
-                src={c.portrait}
-                alt={c.name}
-                className={`${P}-char-avatar`}
-              />
+              {c.portrait.startsWith('/') ? (
+                <img src={c.portrait} alt={c.name} className={`${P}-char-avatar`} />
+              ) : (
+                <span className={`${P}-char-avatar`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, background: 'var(--bg-hover)' }}>{c.portrait}</span>
+              )}
               <div className={`${P}-char-info`}>
                 <h4>{c.name}</h4>
                 <p>{c.title}</p>

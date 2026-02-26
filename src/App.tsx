@@ -59,12 +59,11 @@ function StartScreen() {
         <div className={`${P}-preview-grid`}>
           {previewChars.map((char) => (
             <div key={char.id} className={`${P}-preview-card`}>
-              <img
-                src={char.portrait}
-                alt={char.name}
-                className={`${P}-preview-avatar`}
-                loading="lazy"
-              />
+              {char.portrait.startsWith('/') ? (
+                <img src={char.portrait} alt={char.name} className={`${P}-preview-avatar`} loading="lazy" />
+              ) : (
+                <span className={`${P}-preview-avatar`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, background: 'var(--bg-hover)', borderRadius: '50%' }}>{char.portrait}</span>
+              )}
               <span className={`${P}-preview-name`}>{char.name}</span>
             </div>
           ))}
