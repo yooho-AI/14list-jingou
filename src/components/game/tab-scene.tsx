@@ -1,13 +1,44 @@
 /**
  * [INPUT]: 依赖 store.ts 的 scenes/currentScene/selectScene/unlockedScenes/characters/selectCharacter/setActiveTab/currentDay
  * [OUTPUT]: 对外提供 TabScene 组件
- * [POS]: 场景 Tab，场景大图(9:16) + 相关人物 + 地点列表。被 app-shell 消费
+ * [POS]: 场景 Tab，当前场景卡(左图右文) + 相关人物(2列) + 所有地点(2列)。被 app-shell 消费
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
 import { useGameStore, SCENES, getAvailableCharacters } from '../../lib/store'
 
 const P = 'jg'
+
+// ── 图片/emoji 渲染辅助 ──────────────────────────────
+
+function AssetBox({ src, size = 120 }: { src: string; size?: number }) {
+  if (src.startsWith('/')) {
+    return <img src={src} alt="" style={{ width: size, height: size * 16 / 9, objectFit: 'cover', borderRadius: 12 }} />
+  }
+  return (
+    <div style={{
+      width: size, height: size * 16 / 9,
+      background: 'var(--bg-hover)', borderRadius: 12,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.4,
+    }}>
+      {src}
+    </div>
+  )
+}
+
+function SmallAvatar({ src, size = 28 }: { src: string; size?: number }) {
+  if (src.startsWith('/')) {
+    return <img src={src} alt="" style={{ width: size, height: size, objectFit: 'cover', borderRadius: 8, flexShrink: 0 }} />
+  }
+  return (
+    <span style={{
+      width: size, height: size, borderRadius: 8, flexShrink: 0,
+      background: 'var(--bg-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.6,
+    }}>
+      {src}
+    </span>
+  )
+}
 
 export default function TabScene() {
   const {
@@ -27,70 +58,62 @@ export default function TabScene() {
 
   return (
     <div style={{ height: '100%', overflowY: 'auto', padding: 12 }} className={`${P}-scrollbar`}>
-      {/* 场景大图 */}
+
+      {/* ── 当前场景 ── */}
+      <div className={`${P}-section-title`}>📍 当前场景</div>
       {scene && (
-        <div className={`${P}-scene-hero`}>
-          {scene.background.startsWith('/') ? (
-            <img src={scene.background} alt={scene.name} />
-          ) : (
-            <div style={{ width: '100%', aspectRatio: '9/16', background: 'var(--bg-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 80 }}>
-              {scene.background}
-            </div>
-          )}
-          <div className={`${P}-scene-hero-overlay`}>
-            <h3>{scene.icon} {scene.name}</h3>
-            <p>{scene.description}</p>
+        <div className={`${P}-card`} style={{ display: 'flex', gap: 14, marginBottom: 16, padding: 14 }}>
+          <AssetBox src={scene.background} size={110} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>{scene.icon} {scene.name}</h3>
+            <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 8 }}>
+              {scene.description}
+            </p>
+            {scene.atmosphere && (
+              <p style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.6, fontStyle: 'italic' }}>
+                🌫️ {scene.atmosphere}
+              </p>
+            )}
           </div>
         </div>
       )}
 
-      {/* 氛围描述 */}
-      {scene?.atmosphere && (
-        <p className={`${P}-scene-desc`}>
-          🌫️ {scene.atmosphere}
-        </p>
-      )}
-
-      {/* 相关人物 */}
-      <div className={`${P}-section-title`}>👤 相关人物</div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+      {/* ── 场景相关人物 ── */}
+      <div className={`${P}-section-title`}>👤 场景相关人物</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 20 }}>
         {Object.entries(availableChars).map(([id, char]) => (
-          <div
+          <button
             key={id}
-            className={`${P}-char-tag`}
-            style={{ flex: '0 0 auto' }}
+            className={`${P}-tag-btn`}
             onClick={() => handleCharClick(id)}
           >
-            {char.portrait.startsWith('/') ? (
-              <img src={char.portrait} alt={char.name} className={`${P}-char-avatar`} style={{ width: 32, height: 32, borderRadius: 8 }} />
-            ) : (
-              <span style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--bg-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{char.portrait}</span>
-            )}
-            <span style={{ fontSize: 13 }}>{char.name}</span>
-          </div>
+            <SmallAvatar src={char.portrait} />
+            <span>{char.name}</span>
+          </button>
         ))}
       </div>
 
-      {/* 探索地点 */}
-      <div className={`${P}-section-title`}>🗺️ 探索地点</div>
-      {allScenes.map((s) => {
-        const isActive = s.id === currentScene
-        const isLocked = !unlockedScenes.includes(s.id)
+      {/* ── 所有地点 ── */}
+      <div className={`${P}-section-title`}>🗺️ 所有地点</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        {allScenes.map((s) => {
+          const isActive = s.id === currentScene
+          const isLocked = !unlockedScenes.includes(s.id)
 
-        return (
-          <div
-            key={s.id}
-            className={`${P}-location-tag ${isActive ? `${P}-location-tag-active` : ''} ${isLocked ? `${P}-location-tag-locked` : ''}`}
-            onClick={() => !isLocked && selectScene(s.id)}
-          >
-            <span className={`${P}-location-icon`}>{s.icon}</span>
-            <div className={`${P}-location-info`}>
-              <h4>{s.name}{isLocked ? ' 🔒' : ''}</h4>
-              <p>{s.description}</p>
-            </div>
-          </div>
-        )
-      })}
+          return (
+            <button
+              key={s.id}
+              className={`${P}-tag-btn ${isActive ? `${P}-tag-btn-active` : ''}`}
+              onClick={() => !isLocked && selectScene(s.id)}
+              disabled={isLocked}
+              style={isLocked ? { opacity: 0.35 } : undefined}
+            >
+              <span style={{ fontSize: 18 }}>{s.icon}</span>
+              <span>{s.name}{isLocked ? ' 🔒' : ''}</span>
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }

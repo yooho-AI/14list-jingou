@@ -1,123 +1,62 @@
 /**
  * [INPUT]: 依赖 store.ts 的 characters/currentCharacter/selectCharacter/characterStats/currentDay
  * [OUTPUT]: 对外提供 TabCharacter 组件
- * [POS]: 人物 Tab，角色立绘(9:16) + 数值条(category分组) + 关系图 + 角色列表。被 app-shell 消费
+ * [POS]: 人物 Tab，当前人物卡(左绘右值) + 关系图 + 全部人物(2列)。被 app-shell 消费
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
 import { motion } from 'framer-motion'
-import { useGameStore, getAvailableCharacters, getStatLevel } from '../../lib/store'
+import { useGameStore, getAvailableCharacters } from '../../lib/store'
 import type { StatMeta } from '../../lib/store'
 
 const P = 'jg'
 
-// ── 分组标签 ──────────────────────────────────────────
+// ── 图片/emoji 渲染辅助 ──────────────────────────────
 
-const CATEGORY_LABELS: Record<string, string> = {
-  relation: '🤝 关系',
-  status: '📊 状态',
-  skill: '⚡ 技能',
+function AssetBox({ src, size = 120 }: { src: string; size?: number }) {
+  if (src.startsWith('/')) {
+    return <img src={src} alt="" style={{ width: size, height: size * 16 / 9, objectFit: 'cover', borderRadius: 12 }} />
+  }
+  return (
+    <div style={{
+      width: size, height: size * 16 / 9,
+      background: 'var(--bg-hover)', borderRadius: 12,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.4,
+    }}>
+      {src}
+    </div>
+  )
+}
+
+function SmallAvatar({ src, size = 28 }: { src: string; size?: number }) {
+  if (src.startsWith('/')) {
+    return <img src={src} alt="" style={{ width: size, height: size, objectFit: 'cover', borderRadius: 8, flexShrink: 0 }} />
+  }
+  return (
+    <span style={{
+      width: size, height: size, borderRadius: 8, flexShrink: 0,
+      background: 'var(--bg-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.6,
+    }}>
+      {src}
+    </span>
+  )
 }
 
 // ── StatBar ───────────────────────────────────────────
 
 function StatBar({ meta, value }: { meta: StatMeta; value: number }) {
   return (
-    <div className={`${P}-stat-bar`}>
-      <span className={`${P}-stat-label`}>{meta.icon} {meta.label}</span>
-      <div className={`${P}-stat-track`}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+      <span style={{ fontSize: 11, color: 'var(--text-secondary)', minWidth: 36, whiteSpace: 'nowrap' }}>{meta.icon} {meta.label}</span>
+      <div style={{ flex: 1, height: 5, background: 'rgba(139,105,20,0.1)', borderRadius: 3, overflow: 'hidden' }}>
         <motion.div
-          className={`${P}-stat-fill`}
-          style={{ backgroundColor: meta.color }}
+          style={{ height: '100%', borderRadius: 3, backgroundColor: meta.color }}
           initial={{ width: 0 }}
           animate={{ width: `${value}%` }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
         />
       </div>
-      <span className={`${P}-stat-value`} style={{ color: meta.color }}>{value}</span>
-    </div>
-  )
-}
-
-// ── StatGroups ────────────────────────────────────────
-
-function StatGroups({ statMetas, stats }: {
-  statMetas: StatMeta[]
-  stats: Record<string, number>
-}) {
-  const groups = (['relation', 'status', 'skill'] as const)
-    .map((cat) => ({
-      category: cat,
-      label: CATEGORY_LABELS[cat],
-      metas: statMetas.filter((m) => m.category === cat),
-    }))
-    .filter((g) => g.metas.length > 0)
-
-  return (
-    <div style={{ padding: '0 4px', marginBottom: 16 }}>
-      {groups.map((group) => (
-        <div key={group.category} className={`${P}-stat-group`}>
-          <div className={`${P}-stat-group-title`}>{group.label}</div>
-          {group.metas.map((meta) => (
-            <StatBar key={meta.key} meta={meta} value={stats[meta.key] ?? 0} />
-          ))}
-        </div>
-      ))}
-    </div>
-  )
-}
-
-// ── RelationGraph ─────────────────────────────────────
-
-function RelationGraph() {
-  const { characters, characterStats, currentDay, currentCharacter } = useGameStore()
-  const available = getAvailableCharacters(currentDay, characters)
-
-  const sorted = Object.entries(available)
-    .filter(([id]) => id !== currentCharacter)
-    .sort(([aId, aChar], [bId, bChar]) => {
-      const aKey = aChar.statMetas[0]?.key
-      const bKey = bChar.statMetas[0]?.key
-      const aVal = aKey ? (characterStats[aId]?.[aKey] ?? 0) : 0
-      const bVal = bKey ? (characterStats[bId]?.[bKey] ?? 0) : 0
-      return bVal - aVal
-    })
-
-  if (sorted.length === 0) return null
-
-  return (
-    <div className={`${P}-relation-graph`}>
-      <div className={`${P}-section-title`}>🔗 角色关系</div>
-      {sorted.map(([id, char]) => {
-        const stats = characterStats[id]
-        return (
-          <div key={id} className={`${P}-relation-card`}>
-            {char.portrait.startsWith('/') ? (
-              <img src={char.portrait} alt={char.name} className={`${P}-relation-avatar`} />
-            ) : (
-              <span className={`${P}-relation-avatar`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, background: 'var(--bg-hover)' }}>{char.portrait}</span>
-            )}
-            <span className={`${P}-relation-name`}>{char.name}</span>
-            <div className={`${P}-relation-values`}>
-              {char.statMetas
-                .filter((m) => m.category === 'relation')
-                .map((meta) => (
-                  <span key={meta.key} style={{ color: meta.color }}>
-                    {meta.icon}{stats?.[meta.key] ?? 0}
-                  </span>
-                ))}
-              {char.statMetas
-                .filter((m) => m.category !== 'relation')
-                .slice(0, 1)
-                .map((meta) => (
-                  <span key={meta.key} style={{ color: meta.color, opacity: 0.7 }}>
-                    {meta.icon}{stats?.[meta.key] ?? 0}
-                  </span>
-                ))}
-            </div>
-          </div>
-        )
-      })}
+      <span style={{ fontSize: 11, fontWeight: 600, color: meta.color, minWidth: 20, textAlign: 'right' }}>{value}</span>
     </div>
   )
 }
@@ -134,83 +73,72 @@ export default function TabCharacter() {
   const char = currentCharacter ? characters[currentCharacter] : null
   const stats = currentCharacter ? (characterStats[currentCharacter] ?? {}) : {}
 
-  // 选中角色的总体等级
-  const levelInfo = char ? getStatLevel(
-    char.statMetas.reduce((sum, m) => sum + (stats[m.key] ?? 0), 0) / Math.max(char.statMetas.length, 1)
-  ) : null
-
   return (
     <div style={{ height: '100%', overflowY: 'auto', padding: 12 }} className={`${P}-scrollbar`}>
-      {/* 角色立绘 */}
+
+      {/* ── 当前人物 ── */}
+      <div className={`${P}-section-title`}>👤 当前人物</div>
       {char ? (
-        <div className={`${P}-portrait-hero`}>
-          {char.portrait.startsWith('/') ? (
-            <img src={char.portrait} alt={char.name} />
-          ) : (
-            <div style={{ width: '100%', aspectRatio: '9/16', background: 'var(--bg-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 80 }}>
-              {char.portrait}
-            </div>
-          )}
-          <div className={`${P}-portrait-hero-overlay`}>
-            <h3>{char.name}</h3>
-            <div className={`${P}-char-title`}>{char.title}</div>
-            {levelInfo && (
-              <span style={{
-                display: 'inline-block', marginTop: 6,
-                padding: '2px 10px', borderRadius: 10,
-                fontSize: 11, fontWeight: 600,
-                background: `${levelInfo.color}30`, color: levelInfo.color,
-              }}>
-                {levelInfo.name}
-              </span>
-            )}
+        <div className={`${P}-card`} style={{ display: 'flex', gap: 14, marginBottom: 16, padding: 14 }}>
+          <AssetBox src={char.portrait} size={100} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 2 }}>{char.name}</h3>
+            <p style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8 }}>{char.title} · {char.description}</p>
+
+            {/* 数值条 */}
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>数值</div>
+            {char.statMetas.map((meta) => (
+              <StatBar key={meta.key} meta={meta} value={stats[meta.key] ?? 0} />
+            ))}
           </div>
         </div>
       ) : (
-        <div className={`${P}-placeholder`}>
+        <div className={`${P}-placeholder`} style={{ marginBottom: 16 }}>
           <div className={`${P}-placeholder-icon`}>👤</div>
           <p>选择一个角色开始互动</p>
         </div>
       )}
 
-      {/* 数值条 */}
-      {char && (
-        <StatGroups statMetas={char.statMetas} stats={stats} />
-      )}
-
-      {/* 关系图 */}
-      <RelationGraph />
-
-      {/* 全部角色 */}
-      <div className={`${P}-section-title`}>👥 全部角色</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      {/* ── 人物关系 ── */}
+      <div className={`${P}-section-title`}>🔗 人物关系</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 }}>
         {Object.entries(available).map(([id, c]) => {
-          const isActive = id === currentCharacter
           const cStats = characterStats[id]
-          const firstMeta = c.statMetas[0]
-          const firstVal = firstMeta ? (cStats?.[firstMeta.key] ?? 0) : 0
-
           return (
             <div
               key={id}
-              className={`${P}-char-tag ${isActive ? `${P}-char-tag-active` : ''}`}
+              className={`${P}-relation-card`}
+              style={{ cursor: 'pointer' }}
               onClick={() => selectCharacter(id)}
             >
-              {c.portrait.startsWith('/') ? (
-                <img src={c.portrait} alt={c.name} className={`${P}-char-avatar`} />
-              ) : (
-                <span className={`${P}-char-avatar`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, background: 'var(--bg-hover)' }}>{c.portrait}</span>
-              )}
-              <div className={`${P}-char-info`}>
-                <h4>{c.name}</h4>
-                <p>{c.title}</p>
+              <SmallAvatar src={c.portrait} size={36} />
+              <span className={`${P}-relation-name`}>{c.name}</span>
+              <div className={`${P}-relation-values`}>
+                {c.statMetas.map((meta) => (
+                  <span key={meta.key} style={{ color: meta.color }}>
+                    {meta.icon}{cStats?.[meta.key] ?? 0}
+                  </span>
+                ))}
               </div>
-              {firstMeta && (
-                <span className={`${P}-char-stat`} style={{ color: firstMeta.color }}>
-                  {firstMeta.icon}{firstVal}
-                </span>
-              )}
             </div>
+          )
+        })}
+      </div>
+
+      {/* ── 所有人物 ── */}
+      <div className={`${P}-section-title`}>👥 所有人物</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        {Object.entries(available).map(([id, c]) => {
+          const isActive = id === currentCharacter
+          return (
+            <button
+              key={id}
+              className={`${P}-tag-btn ${isActive ? `${P}-tag-btn-active` : ''}`}
+              onClick={() => selectCharacter(id)}
+            >
+              <SmallAvatar src={c.portrait} />
+              <span>{c.name}</span>
+            </button>
           )
         })}
       </div>

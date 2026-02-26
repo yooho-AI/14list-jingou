@@ -672,6 +672,39 @@ body {
   flex-shrink: 0;
 }
 
+/* ── 2列标签按钮 ───────────────────────────────────── */
+.jg-tag-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(139, 105, 20, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.jg-tag-btn:active {
+  background: var(--primary-light);
+  border-color: var(--primary-border);
+}
+
+.jg-tag-btn-active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.jg-tag-btn:disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
 /* ── 通用卡片 / 弹窗 ──────────────────────────────── */
 .jg-card {
   background: rgba(26, 22, 16, 0.9);
