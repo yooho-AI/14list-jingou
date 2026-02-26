@@ -92,6 +92,12 @@ function StartScreen() {
             exit={{ opacity: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
           >
+            <video
+              className={`${P}-crawl-bg`}
+              src="/scenes/crawl-bg.mp4"
+              autoPlay muted loop playsInline
+            />
+            <div className={`${P}-crawl-frost`} />
             <div
               className={`${P}-crawl`}
               onAnimationEnd={() => setPhase('ready')}
