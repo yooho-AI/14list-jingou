@@ -114,11 +114,13 @@ export default function TabCharacter() {
               <SmallAvatar src={c.portrait} size={36} />
               <span className={`${P}-relation-name`}>{c.name}</span>
               <div className={`${P}-relation-values`}>
-                {c.statMetas.map((meta) => (
-                  <span key={meta.key} style={{ color: meta.color }}>
-                    {meta.icon}{cStats?.[meta.key] ?? 0}
-                  </span>
-                ))}
+                {c.statMetas
+                  .filter((m) => m.category === 'relation')
+                  .map((meta) => (
+                    <span key={meta.key} style={{ color: meta.color }}>
+                      {meta.icon}{cStats?.[meta.key] ?? 0}
+                    </span>
+                  ))}
               </div>
             </div>
           )
