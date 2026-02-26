@@ -798,6 +798,7 @@ body {
 
 /* ── 开场页（三幕：信 → 字幕 → CTA）──────────────── */
 .jg-start {
+  width: 100%;
   height: 100dvh;
   background: var(--bg-secondary);
   position: relative;
