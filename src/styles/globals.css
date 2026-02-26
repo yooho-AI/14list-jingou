@@ -798,132 +798,226 @@ body {
 
 /* ── 开场页 ────────────────────────────────────────── */
 .jg-start {
+  min-height: 100dvh;
+  padding: 0;
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(139, 105, 20, 0.12) 0%, transparent 60%),
+    var(--bg-secondary);
+  overflow-y: auto;
+}
+
+.jg-start-inner {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 100dvh;
-  padding: 40px 24px;
-  background:
-    radial-gradient(ellipse at 50% 30%, rgba(139, 105, 20, 0.12) 0%, transparent 60%),
-    var(--bg-secondary);
+  padding: 48px 20px 40px;
+  max-width: 400px;
+  margin: 0 auto;
   text-align: center;
 }
 
 .jg-start-emoji {
-  font-size: 64px;
-  margin-bottom: 16px;
+  font-size: 56px;
+  margin-bottom: 12px;
 }
 
 .jg-start h1 {
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 800;
   color: var(--text-primary);
+  letter-spacing: 4px;
   margin-bottom: 4px;
 }
 
 .jg-start h2 {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 400;
   color: var(--text-muted);
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
-.jg-start-desc {
+/* ── 身份卡 ── */
+.jg-identity-card {
+  width: 100%;
+  padding: 16px 20px;
+  background: rgba(139, 105, 20, 0.1);
+  border: 1px solid var(--primary-border);
+  border-radius: 14px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.jg-identity-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  letter-spacing: 2px;
+}
+
+.jg-identity-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 6px;
+}
+
+.jg-identity-desc {
   font-size: 13px;
   color: var(--text-secondary);
   line-height: 1.7;
-  max-width: 320px;
-  margin-bottom: 32px;
 }
 
-.jg-name-input {
+/* ── 情报卡 ── */
+.jg-briefing-card {
   width: 100%;
-  max-width: 280px;
-  padding: 12px 16px;
-  background: rgba(139, 105, 20, 0.08);
-  border: 1px solid var(--border);
-  border-radius: 14px;
+  padding: 14px 16px;
+  background: rgba(220, 38, 38, 0.04);
+  border: 1px solid rgba(220, 38, 38, 0.15);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.jg-briefing-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--danger);
+  margin-bottom: 8px;
+}
+
+.jg-briefing-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 8px;
+}
+
+.jg-briefing-text:last-child {
+  margin-bottom: 0;
+}
+
+.jg-briefing-text strong {
   color: var(--text-primary);
-  font-size: 16px;
-  text-align: center;
-  outline: none;
-  margin-bottom: 20px;
-  transition: border-color 0.2s;
+  font-weight: 600;
 }
 
-.jg-name-input::placeholder {
+/* ── 目标卡 ── */
+.jg-objective-card {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(139, 105, 20, 0.06);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.jg-objective-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 10px;
+}
+
+.jg-objective-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.jg-objective-item:last-child {
+  margin-bottom: 0;
+}
+
+.jg-objective-item strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.jg-objective-num {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #1a1610;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+/* ── 玩法卡 ── */
+.jg-howto-card {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(139, 105, 20, 0.04);
+  border: 1px solid rgba(139, 105, 20, 0.12);
+  border-radius: 12px;
+  margin-bottom: 28px;
+  text-align: left;
+}
+
+.jg-howto-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.jg-howto-text {
+  font-size: 12px;
   color: var(--text-muted);
+  line-height: 1.7;
 }
 
-.jg-name-input:focus {
-  border-color: var(--primary);
-}
-
+/* ── 按钮 ── */
 .jg-start-btn {
-  padding: 14px 40px;
+  width: 100%;
+  padding: 16px;
   background: var(--primary);
   color: #1a1610;
   border: none;
-  border-radius: 24px;
-  font-size: 16px;
+  border-radius: 14px;
+  font-size: 17px;
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .jg-start-btn:active {
   transform: scale(0.97);
 }
 
-.jg-start-btn:disabled {
-  opacity: 0.4;
-  pointer-events: none;
-}
-
 .jg-continue-btn {
-  padding: 10px 24px;
+  width: 100%;
+  padding: 14px;
   background: transparent;
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 14px;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
+  margin-bottom: 10px;
 }
 
-/* ── 角色预览 ──────────────────────────────────────── */
-.jg-preview-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  width: 100%;
-  max-width: 320px;
-  margin-bottom: 28px;
-}
-
-.jg-preview-card {
+.jg-start-footer {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 10px 6px;
-  background: rgba(139, 105, 20, 0.06);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  gap: 12px;
+  margin-top: 8px;
 }
 
-.jg-preview-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 6px;
-}
-
-.jg-preview-name {
+.jg-start-meta {
   font-size: 11px;
-  color: var(--text-secondary);
-  text-align: center;
+  color: var(--text-muted);
 }
 
 /* ── 菜单 ──────────────────────────────────────────── */

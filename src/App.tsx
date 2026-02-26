@@ -7,7 +7,7 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useGameStore, ENDINGS, STORY_INFO, buildCharacters } from './lib/store'
+import { useGameStore, ENDINGS, STORY_INFO } from './lib/store'
 import { useBgm } from './lib/bgm'
 import { trackGameStart, trackGameContinue, trackEndingReached } from './lib/analytics'
 import AppShell from './components/game/app-shell'
@@ -29,7 +29,6 @@ const ENDING_TYPE_MAP: Record<string, { label: string; color: string; icon: stri
 function StartScreen() {
   const { initGame, loadGame, hasSave } = useGameStore()
   const { isPlaying: musicOn, toggle: handleMusic } = useBgm()
-  const previewChars = Object.values(buildCharacters()).slice(0, 6)
   const saved = hasSave()
 
   const handleStart = useCallback(() => {
@@ -45,60 +44,81 @@ function StartScreen() {
   return (
     <div className={`${P}-start`}>
       <motion.div
+        className={`${P}-start-inner`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
+        {/* ── 标题 ── */}
         <div className={`${P}-start-emoji`}>⛏️</div>
         <h1>{STORY_INFO.title}</h1>
         <h2>{STORY_INFO.subtitle}</h2>
-        <p className={`${P}-start-desc`}>{STORY_INFO.description}</p>
 
-        {/* 角色预览 */}
-        <div className={`${P}-preview-grid`}>
-          {previewChars.map((char) => (
-            <div key={char.id} className={`${P}-preview-card`}>
-              {char.portrait.startsWith('/') ? (
-                <img src={char.portrait} alt={char.name} className={`${P}-preview-avatar`} loading="lazy" />
-              ) : (
-                <span className={`${P}-preview-avatar`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, background: 'var(--bg-hover)', borderRadius: '50%' }}>{char.portrait}</span>
-              )}
-              <span className={`${P}-preview-name`}>{char.name}</span>
-            </div>
-          ))}
+        {/* ── 身份卡：你是谁 ── */}
+        <div className={`${P}-identity-card`}>
+          <div className={`${P}-identity-label`}>你将扮演</div>
+          <div className={`${P}-identity-name`}>林承义</div>
+          <div className={`${P}-identity-desc`}>
+            山东逃荒汉，为了活命，带着妻子巧珍一路北上，投奔在漠河淘金的搭档——陈大哥。
+          </div>
         </div>
 
-        {/* 固定角色身份 */}
-        <div style={{
-          padding: '12px 20px', marginBottom: 20,
-          background: 'var(--primary-light)', border: '1px solid var(--primary-border)',
-          borderRadius: 14, maxWidth: 280, width: '100%',
-        }}>
-          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>你将扮演</div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--primary)' }}>林承义</div>
-          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>山东逃荒汉，陈大哥的兄弟，巧珍的丈夫</div>
+        {/* ── 情报卡：发生了什么 ── */}
+        <div className={`${P}-briefing-card`}>
+          <div className={`${P}-briefing-header`}>⚠️ 情况</div>
+          <p className={`${P}-briefing-text`}>
+            光绪三十二年冬，你抵达漠河老金沟矿区，却发现<strong>陈大哥已经失踪</strong>。
+            他的靰鞡鞋整整齐齐摆在门口——零下四十度，没有人光脚出门。
+          </p>
+          <p className={`${P}-briefing-text`}>
+            矿区由<strong>金把头刘德厚</strong>一手遮天。
+            工人们讳莫如深，没人愿意提起失踪的事。
+          </p>
         </div>
 
-        {/* 操作按钮 */}
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <button className={`${P}-start-btn`} onClick={handleStart}>
-            进入金沟
-          </button>
-
-          {saved && (
-            <button className={`${P}-continue-btn`} onClick={handleContinue}>
-              📖 继续上次
-            </button>
-          )}
+        {/* ── 目标卡：你要做什么 ── */}
+        <div className={`${P}-objective-card`}>
+          <div className={`${P}-objective-header`}>🎯 你的目标</div>
+          <div className={`${P}-objective-item`}>
+            <span className={`${P}-objective-num`}>1</span>
+            <span>在<strong>20天内</strong>收集<strong>12条线索</strong>，调查陈大哥失踪的真相</span>
+          </div>
+          <div className={`${P}-objective-item`}>
+            <span className={`${P}-objective-num`}>2</span>
+            <span>与矿区各色人物周旋——有人是帮手，有人是威胁</span>
+          </div>
+          <div className={`${P}-objective-item`}>
+            <span className={`${P}-objective-num`}>3</span>
+            <span>控制<strong>警觉度</strong>——被金把头盯上，你就是下一个失踪者</span>
+          </div>
         </div>
 
-        <button
-          className={`${P}-icon-btn`}
-          onClick={handleMusic}
-          style={{ marginTop: 16 }}
-        >
-          {musicOn ? '🔊' : '🔇'}
+        {/* ── 玩法提示 ── */}
+        <div className={`${P}-howto-card`}>
+          <div className={`${P}-howto-header`}>💡 怎么玩</div>
+          <p className={`${P}-howto-text`}>
+            输入文字或点击快捷操作与矿区互动。<br />
+            底部切换「场景」探索不同地点，「人物」查看关系与数值变化。
+          </p>
+        </div>
+
+        {/* ── 操作按钮 ── */}
+        <button className={`${P}-start-btn`} onClick={handleStart}>
+          ⛏️ 开始调查
         </button>
+
+        {saved && (
+          <button className={`${P}-continue-btn`} onClick={handleContinue}>
+            📖 继续上次
+          </button>
+        )}
+
+        <div className={`${P}-start-footer`}>
+          <button className={`${P}-icon-btn`} onClick={handleMusic}>
+            {musicOn ? '🔊' : '🔇'}
+          </button>
+          <span className={`${P}-start-meta`}>20天 · 5种结局 · AI驱动叙事</span>
+        </div>
       </motion.div>
     </div>
   )
