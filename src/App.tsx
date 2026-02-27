@@ -113,13 +113,15 @@ function StartScreen() {
             transition={{ delay: 2, duration: 0.5 }}
           >
             <div className={`${P}-music-bar-body`}>
-              <span className={`${P}-music-bar-icon`}>🎵</span>
-              <span className={`${P}-music-bar-text`}>开启音乐以获得沉浸体验</span>
+              <span className={`${P}-music-bar-icon`}>{musicOn ? '🎵' : '🔇'}</span>
+              <span className={`${P}-music-bar-text`}>
+                {musicOn ? '正在播放背景音乐' : '背景音乐已关闭'}
+              </span>
               <button
                 className={`${P}-music-bar-toggle`}
                 onClick={handleMusic}
               >
-                {musicOn ? '已开启' : '点击开启'}
+                {musicOn ? '关闭' : '开启'}
               </button>
               <button
                 className={`${P}-music-bar-close`}
