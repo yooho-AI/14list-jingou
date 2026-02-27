@@ -113,7 +113,22 @@ function StartScreen() {
             transition={{ delay: 2, duration: 0.5 }}
           >
             <div className={`${P}-music-bar-body`}>
-              <span className={`${P}-music-bar-icon`}>{musicOn ? '🎵' : '🔇'}</span>
+              <svg className={`${P}-music-bar-icon`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                {musicOn ? (
+                  <>
+                    <path d="M9 18V5l12-2v13" />
+                    <circle cx="6" cy="18" r="3" fill="currentColor" />
+                    <circle cx="18" cy="16" r="3" fill="currentColor" />
+                  </>
+                ) : (
+                  <>
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                    <path d="M9 9v9l12-2v-5" />
+                    <circle cx="6" cy="18" r="3" fill="currentColor" />
+                    <path d="M21 3L9 5" />
+                  </>
+                )}
+              </svg>
               <span className={`${P}-music-bar-text`}>
                 {musicOn ? '正在播放背景音乐' : '背景音乐已关闭'}
               </span>
