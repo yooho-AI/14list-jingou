@@ -1754,9 +1754,13 @@ body {
   letter-spacing: 2px;
 }
 
-/* ── 5. 音乐播放器（MusicPlayer）──────────────────── */
+/* ── 5. 铜钱音乐播放器（CoinMusicPlayer）─────────── */
 
-.jg-music-btn {
+.jg-coin-wrap {
+  position: relative;
+}
+
+.jg-coin-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1766,91 +1770,126 @@ body {
   border: none;
   cursor: pointer;
   padding: 0;
+  perspective: 200px;
 }
 
-.jg-music-disc {
-  width: 24px;
-  height: 24px;
+/* 铜钱本体 */
+.jg-coin {
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: conic-gradient(
-    from 0deg,
-    #2c1a08 0deg, #5a4020 60deg, #2c1a08 120deg,
-    #5a4020 180deg, #2c1a08 240deg, #5a4020 300deg, #2c1a08 360deg
-  );
-  border: 2px solid var(--primary-border);
-  position: relative;
+  background: radial-gradient(circle, #b8941a 0%, #8B6914 50%, #6b5010 100%);
+  border: 1.5px solid #a67c00;
   display: flex;
   align-items: center;
   justify-content: center;
+  transform-style: preserve-3d;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
-.jg-music-disc-inner {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--primary);
+.jg-coin-hole {
+  width: 7px;
+  height: 7px;
+  background: #1a1510;
+  border: 1px solid #5a4020;
 }
 
-.jg-music-spinning {
-  animation: jgSpin 3s linear infinite;
+.jg-coin-spin {
+  animation: jgCoinSpin 3s linear infinite;
 }
 
-@keyframes jgSpin {
-  to { transform: rotate(360deg); }
+@keyframes jgCoinSpin {
+  to { transform: rotateY(360deg); }
 }
 
-/* 迷你面板 */
-.jg-music-panel {
+/* 展开面板 */
+.jg-coin-panel {
   position: absolute;
   top: 40px;
   right: 0;
-  width: 160px;
-  padding: 12px;
-  background: var(--bg-primary);
+  width: 164px;
+  padding: 14px 12px;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(139, 105, 20, 0.04) 0%, transparent 60%),
+    var(--bg-primary);
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
   z-index: 50;
 }
 
-.jg-music-panel-title {
+.jg-coin-hero {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+  perspective: 300px;
+}
+
+.jg-coin-lg {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #c8a42a 0%, #8B6914 45%, #5a3e0a 100%);
+  border: 2px solid #a67c00;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    inset 0 0 8px rgba(255, 200, 50, 0.1);
+}
+
+.jg-coin-hole-lg {
+  width: 13px;
+  height: 13px;
+  background: #1a1510;
+  border: 1.5px solid #5a4020;
+}
+
+.jg-coin-title {
   font-size: 12px;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 8px;
   text-align: center;
+  margin-bottom: 10px;
+  font-family: 'KaiTi', 'STKaiti', serif;
+  letter-spacing: 1px;
 }
 
-.jg-music-wave {
+/* 波形动画 5条 */
+.jg-coin-wave {
   display: flex;
   align-items: flex-end;
   justify-content: center;
   gap: 3px;
-  height: 20px;
+  height: 22px;
   margin-bottom: 10px;
 }
 
-.jg-music-bar {
+.jg-coin-bar {
   width: 3px;
   height: 4px;
   background: var(--primary);
   border-radius: 1px;
 }
 
-.jg-music-bar-active {
-  animation: jgWave 0.5s ease-in-out infinite alternate;
+.jg-coin-bar-on {
+  animation: jgCoinWave 0.5s ease-in-out infinite alternate;
 }
 
-.jg-music-bar:nth-child(1) { animation-delay: 0s; }
-.jg-music-bar:nth-child(2) { animation-delay: 0.15s; }
-.jg-music-bar:nth-child(3) { animation-delay: 0.3s; }
+.jg-coin-bar:nth-child(1) { animation-delay: 0s; }
+.jg-coin-bar:nth-child(2) { animation-delay: 0.12s; }
+.jg-coin-bar:nth-child(3) { animation-delay: 0.24s; }
+.jg-coin-bar:nth-child(4) { animation-delay: 0.1s; }
+.jg-coin-bar:nth-child(5) { animation-delay: 0.05s; }
 
-@keyframes jgWave {
+@keyframes jgCoinWave {
   from { height: 4px; }
-  to { height: 18px; }
+  to { height: 20px; }
 }
 
-.jg-music-toggle {
+.jg-coin-toggle {
   display: block;
   width: 100%;
   padding: 6px;
@@ -1864,7 +1903,7 @@ body {
   transition: all 0.2s;
 }
 
-.jg-music-toggle:active {
+.jg-coin-toggle:active {
   background: var(--primary-light);
   color: var(--primary);
 }
@@ -2092,307 +2131,349 @@ body {
   filter: blur(0.5px);
 }
 
-/* ── 角色印象卡（两列网格） ─────────────────────────── */
+/* ── 人物轮播（老照片翻阅） ──────────────────────── */
 
-.jg-dash-char-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.jg-dash-card {
+.jg-dash-carousel {
   position: relative;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(139, 105, 20, 0.15);
-  border-radius: 8px;
   overflow: hidden;
-  padding: 0;
-  cursor: pointer;
-  text-align: left;
-  transition: transform 0.2s, box-shadow 0.2s;
+  perspective: 600px;
+  min-height: 340px;
 }
 
-.jg-dash-card:active {
-  transform: scale(0.97);
+/* 照片卡 */
+.jg-dash-photo {
+  position: relative;
+  margin: 0 auto;
+  width: 88%;
+  max-width: 280px;
 }
 
-/* 选中态 */
-.jg-dash-card-active {
-  border-color: rgba(139, 37, 0, 0.5);
-  box-shadow: 0 0 16px rgba(139, 37, 0, 0.2);
+.jg-dash-photo-active {
+  /* 选中角色边框变朱砂 */
 }
 
-/* 朱砂蜡封竖条 */
-.jg-dash-card-seal {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 3px;
-  height: 100%;
-  background: linear-gradient(180deg, #a33020, #8b2500 30%, #8b2500 70%, #6b1c1c);
-  z-index: 3;
-  border-radius: 0 0 2px 0;
+/* 白色粗边框（老照片冲印） */
+.jg-dash-photo-frame {
+  position: relative;
+  background: #d4cbb8;
+  padding: 4px 4px 0;
+  border-radius: 3px;
+  box-shadow:
+    4px 4px 14px rgba(0, 0, 0, 0.5),
+    0 0 1px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
 }
 
-.jg-dash-card-seal::before {
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: -2px;
-  width: 7px;
-  height: 7px;
-  background: #8b2500;
-  border-radius: 50%;
-  box-shadow: 0 0 4px rgba(139, 37, 0, 0.5);
+.jg-dash-photo-active .jg-dash-photo-frame {
+  box-shadow:
+    4px 4px 14px rgba(139, 37, 0, 0.3),
+    0 0 0 2px #8b2500,
+    0 0 20px rgba(139, 37, 0, 0.15);
 }
 
-/* 锁定态 */
-.jg-dash-card-locked {
-  cursor: default;
-}
-
-/* ── 照片区 ── */
-.jg-dash-card-portrait {
+/* 立绘区 */
+.jg-dash-photo-img {
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 4;
   overflow: hidden;
 }
 
-.jg-dash-card-portrait img {
+.jg-dash-photo-img img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* 旧照片做旧 */
-  filter: sepia(0.15) contrast(1.08) brightness(0.85);
+  object-position: top center;
+  filter: sepia(0.2) contrast(1.1) brightness(0.88);
 }
 
-.jg-dash-card-emoji {
+.jg-dash-photo-emoji {
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 36px;
-  background: var(--bg-hover);
+  font-size: 64px;
+  background: rgba(139, 105, 20, 0.06);
 }
 
-/* 暗角做旧（四角径向渐变） */
-.jg-dash-card-vignette {
+/* 暗角做旧 */
+.jg-dash-photo-vignette {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 0% 0%, rgba(0, 0, 0, 0.4) 0%, transparent 50%),
-    radial-gradient(ellipse at 100% 0%, rgba(0, 0, 0, 0.3) 0%, transparent 45%),
-    radial-gradient(ellipse at 0% 100%, rgba(0, 0, 0, 0.3) 0%, transparent 45%),
-    radial-gradient(ellipse at 100% 100%, rgba(0, 0, 0, 0.4) 0%, transparent 50%);
+    radial-gradient(ellipse at 0% 0%, rgba(0, 0, 0, 0.45) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 0%, rgba(0, 0, 0, 0.35) 0%, transparent 45%),
+    radial-gradient(ellipse at 0% 100%, rgba(0, 0, 0, 0.35) 0%, transparent 45%),
+    radial-gradient(ellipse at 100% 100%, rgba(0, 0, 0, 0.45) 0%, transparent 50%);
   pointer-events: none;
   z-index: 1;
 }
 
-/* 渐变遮罩 + 名字叠加 */
-.jg-dash-card-nameplate {
+/* 底部渐变+名牌 */
+.jg-dash-photo-nameplate {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 28px 10px 8px;
+  padding: 36px 12px 10px;
   background: linear-gradient(transparent, rgba(10, 8, 5, 0.92));
   z-index: 2;
 }
 
-.jg-dash-card-name {
-  font-size: 15px;
+.jg-dash-photo-name {
+  font-size: 20px;
   font-weight: 700;
   color: #e8e0d0;
   font-family: 'KaiTi', 'STKaiti', 'AR PL UKai CN', serif;
-  letter-spacing: 2px;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  letter-spacing: 3px;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
 }
 
-.jg-dash-card-title {
-  font-size: 10px;
-  color: rgba(160, 152, 128, 0.8);
-  margin-top: 1px;
+.jg-dash-photo-title {
+  font-size: 12px;
+  color: rgba(160, 152, 128, 0.85);
+  margin-top: 2px;
   letter-spacing: 1px;
 }
 
-/* 锁定蒙层 */
-.jg-dash-card-lockscreen {
+/* 朱砂印章 */
+.jg-dash-photo-seal {
   position: absolute;
-  inset: 0;
-  background: rgba(10, 8, 5, 0.7);
-  backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
+  top: 8px;
+  left: 8px;
+  z-index: 5;
+  padding: 2px 8px;
+  background: #8b1a1a;
+  color: #f0d0a0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  border-radius: 2px;
+  box-shadow: 0 2px 6px rgba(139, 26, 26, 0.5);
+  font-family: 'KaiTi', 'STKaiti', serif;
 }
 
-.jg-dash-card-question {
-  font-size: 32px;
-  color: rgba(139, 105, 20, 0.35);
+/* 锁定态 */
+.jg-dash-photo-locked {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(212, 203, 184, 0.08);
+}
+
+.jg-dash-photo-question {
+  font-size: 48px;
+  color: rgba(139, 105, 20, 0.25);
   font-family: 'KaiTi', 'STKaiti', serif;
   font-weight: 700;
 }
 
-/* ── 卡片下半部（批注+数值） ── */
-.jg-dash-card-body {
-  padding: 8px 10px 10px;
+.jg-dash-photo-locked-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'KaiTi', 'STKaiti', serif;
+  letter-spacing: 2px;
 }
 
-/* 林承义手记 */
-.jg-dash-card-note {
-  font-size: 11px;
+/* 批注区 */
+.jg-dash-photo-note {
+  margin-top: 10px;
+  font-size: 13px;
   color: var(--text-secondary);
   font-family: 'KaiTi', 'STKaiti', serif;
-  font-style: italic;
-  line-height: 1.6;
-  margin-bottom: 8px;
-  /* 微倾斜手写感 */
-  transform: rotate(-0.3deg);
-  padding-left: 2px;
-  /* 朱砂引号色 */
-  opacity: 0.85;
+  line-height: 1.7;
+  transform: rotate(-0.5deg);
+  padding: 0 4px;
+  opacity: 0.9;
 }
 
 /* 数值条 */
-.jg-dash-card-stat {
+.jg-dash-photo-stat {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-top: 4px;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 0 4px;
 }
 
-.jg-dash-card-stat-icon {
-  font-size: 10px;
+.jg-dash-photo-stat-icon {
+  font-size: 12px;
   flex-shrink: 0;
-  width: 14px;
+  width: 16px;
   text-align: center;
 }
 
-.jg-dash-card-stat-track {
+.jg-dash-photo-stat-track {
   flex: 1;
-  height: 3px;
+  height: 4px;
   background: rgba(255, 255, 255, 0.06);
-  border-radius: 1px;
+  border-radius: 2px;
   overflow: hidden;
 }
 
-.jg-dash-card-stat-fill {
+.jg-dash-photo-stat-fill {
   height: 100%;
-  border-radius: 1px;
+  border-radius: 2px;
   transition: width 0.6s ease;
-  box-shadow: 0 0 4px currentColor;
+  box-shadow: 0 0 6px currentColor;
 }
 
-.jg-dash-card-stat-label {
-  font-size: 9px;
+.jg-dash-photo-stat-label {
+  font-size: 10px;
   color: var(--text-muted);
-  min-width: 18px;
+  min-width: 20px;
 }
 
-.jg-dash-card-stat-val {
-  font-size: 9px;
+.jg-dash-photo-stat-val {
+  font-size: 10px;
   font-weight: 600;
-  min-width: 16px;
+  min-width: 18px;
   text-align: right;
 }
 
-/* ── 场景地图 ──────────────────────────────────────── */
-
-.jg-dash-scene-hero {
-  position: relative;
-  height: 140px;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 10px;
-  border: 1px solid rgba(139, 105, 20, 0.2);
-}
-
-.jg-dash-scene-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(0.7) contrast(1.1);
-}
-
-.jg-dash-scene-emoji {
-  width: 100%;
-  height: 100%;
+/* 分页圆点 */
+.jg-dash-dots {
   display: flex;
-  align-items: center;
   justify-content: center;
-  font-size: 48px;
-  background: var(--bg-hover);
+  gap: 8px;
+  margin-top: 14px;
 }
 
-.jg-dash-scene-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 24px 12px 10px;
-  background: linear-gradient(transparent, rgba(10, 10, 8, 0.9));
+.jg-dash-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(139, 105, 20, 0.35);
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.25s;
 }
 
-.jg-dash-scene-name {
-  font-size: 15px;
-  color: #d4cbb8;
-  font-weight: 600;
-  font-family: 'KaiTi', 'STKaiti', serif;
+.jg-dash-dot-active {
+  background: #8B6914;
+  border-color: #8B6914;
+  box-shadow: 0 0 6px rgba(139, 105, 20, 0.4);
 }
 
-.jg-dash-scene-atmo {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 2px;
-  font-style: italic;
-  line-height: 1.5;
-}
+/* ── 舆图（手绘地图） ──────────────────────────────── */
 
-.jg-dash-scene-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-}
-
-.jg-dash-scene-tag {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px dashed rgba(139, 105, 20, 0.2);
+.jg-dash-map {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 5 / 4;
   border-radius: 6px;
-  color: var(--text-secondary);
-  font-size: 12px;
+  overflow: hidden;
+  /* 泛黄羊皮纸底 */
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(180, 160, 110, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 60%, rgba(139, 105, 20, 0.06) 0%, transparent 50%),
+    linear-gradient(170deg, #1e1a12 0%, #16120a 100%);
+  border: 1px solid rgba(139, 105, 20, 0.25);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3);
+}
+
+/* 连接线 SVG */
+.jg-dash-map-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 场景节点 */
+.jg-dash-map-node {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  background: rgba(26, 21, 16, 0.7);
+  border: 1px solid rgba(139, 105, 20, 0.3);
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
-  position: relative;
+  transform: translate(-50%, -50%);
 }
 
-.jg-dash-scene-tag:active {
-  background: var(--bg-hover);
+.jg-dash-map-node:active {
+  background: rgba(139, 105, 20, 0.15);
 }
 
-.jg-dash-scene-tag-active {
-  border-color: rgba(139, 105, 20, 0.5);
-  background: rgba(139, 105, 20, 0.08);
+.jg-dash-map-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.jg-dash-map-name {
+  font-size: 9px;
+  color: var(--text-secondary);
+  font-family: 'KaiTi', 'STKaiti', serif;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+/* 当前位置 */
+.jg-dash-map-node-cur {
+  border-color: #8b2500;
+  background: rgba(139, 37, 0, 0.12);
+  box-shadow: 0 0 12px rgba(139, 37, 0, 0.3);
+}
+
+.jg-dash-map-node-cur .jg-dash-map-name {
   color: #d4cbb8;
+  font-weight: 600;
 }
 
-.jg-dash-scene-tag-locked {
+/* 锁定 */
+.jg-dash-map-node-lock {
   opacity: 0.3;
   cursor: default;
-  border-style: dotted;
+  border-style: dashed;
 }
 
-.jg-dash-scene-dot {
+.jg-dash-map-node-lock .jg-dash-map-icon {
+  font-family: 'KaiTi', 'STKaiti', serif;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* 当前位置脉冲 */
+.jg-dash-map-ping {
   position: absolute;
-  right: 8px;
-  color: #8b2500;
-  font-size: 8px;
+  top: -2px;
+  right: -2px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #8b2500;
+  animation: jgMapPing 1.5s ease-out infinite;
+}
+
+@keyframes jgMapPing {
+  0% { box-shadow: 0 0 0 0 rgba(139, 37, 0, 0.6); }
+  70% { box-shadow: 0 0 0 8px rgba(139, 37, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(139, 37, 0, 0); }
+}
+
+/* 装饰文字 */
+.jg-dash-map-deco {
+  position: absolute;
+  font-size: 10px;
+  color: rgba(139, 105, 20, 0.12);
+  font-family: 'KaiTi', 'STKaiti', serif;
+  pointer-events: none;
+  z-index: 0;
+  letter-spacing: 2px;
 }
 
 /* ── 章节目标 ──────────────────────────────────────── */
@@ -2606,6 +2687,46 @@ body {
   font-style: italic;
   text-align: center;
   opacity: 0.6;
+}
+
+/* ── 拖拽排序手柄 ──────────────────────────────────── */
+
+.jg-dash-reorder {
+  position: relative;
+}
+
+.jg-dash-grip {
+  position: absolute;
+  top: 20px;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: rgba(139, 105, 20, 0.25);
+  cursor: grab;
+  z-index: 5;
+  touch-action: none;
+  user-select: none;
+  letter-spacing: 1px;
+}
+
+.jg-dash-grip:active {
+  cursor: grabbing;
+  color: rgba(139, 105, 20, 0.5);
+}
+
+/* Reorder.Group reset */
+.jg-dash-scroll ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.jg-dash-scroll li {
+  list-style: none;
 }
 
 /* ── Header 笔记本按钮 ────────────────────────────── */

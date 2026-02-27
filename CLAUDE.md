@@ -41,12 +41,19 @@ React 19 + Zustand 5 + Immer + Vite 7 + Tailwind CSS v4 + Framer Motion
 
 | 组件 | 位置 | 触发 | 视觉风格 |
 |------|------|------|----------|
-| DashboardDrawer | app-shell | Header📓按钮 | 左侧滑入调查笔记本(旧皮革+宣纸+朱砂红+照片做旧+红线悬案) |
+| DashboardDrawer | app-shell | Header📓+右滑手势 | 左侧滑入笔记本：老照片轮播+手绘舆图+Reorder拖拽排序 |
 | CharacterDossier | tab-character | 点击角色 | 全屏卷宗档案卡，密印+立绘+数值条+性格 |
 | SceneTransitionCard | tab-dialogue | selectScene | 场景大图+Ken Burns+电影字幕卡 |
 | ClueCard | tab-dialogue | 线索+1 | 虚线框+去模糊动画+进度条 |
 | DayCard | tab-dialogue | 日期变化 | 日历撕页飘落+楷体大字+红色撕痕 |
-| MusicPlayer | app-shell header | 始终可用 | 唱片旋转+迷你面板+波形动画 |
+| MusicPlayer(铜钱) | app-shell header | 始终可用 | 3D rotateY铜钱旋转+展开面板+5条波形 |
+
+## 三向手势导航
+
+- **右滑**（任意主Tab）→ 左侧调查笔记本
+- **左滑**（任意主Tab）→ 右侧对话记录
+- Header 按钮（📓/📜）同等触发
+- 笔记本内组件支持拖拽排序（Reorder + localStorage 持久化）
 
 ## 富消息机制
 
