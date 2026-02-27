@@ -1,7 +1,7 @@
 /**
- * [INPUT]: 依赖 store.ts 全部游戏状态, data.ts 的 SCENES/ITEMS, framer-motion (Reorder)
+ * [INPUT]: 依赖 store.ts 全部游戏状态, data.ts 的 SCENES/ITEMS, bgm.ts, framer-motion (Reorder)
  * [OUTPUT]: 对外提供 DashboardDrawer 组件（林承义调查笔记本）
- * [POS]: 左侧滑入抽屉，6组件：扉页/人物轮播/舆图/目标/证据/悬案。支持拖拽排序。被 app-shell 消费
+ * [POS]: 左侧滑入抽屉，7组件：扉页/人物轮播/平面舆图/目标/证据/悬案/音乐。拖拽排序。被 app-shell 消费
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
@@ -11,12 +11,13 @@ import {
   useGameStore, SCENES, ITEMS,
   getCurrentChapter, getAvailableCharacters,
 } from '../../lib/store'
+import { useBgm } from '../../lib/bgm'
 
 const P = 'jg'
 const ORDER_KEY = 'jg-dash-order'
-const DEFAULT_ORDER = ['characters', 'scenes', 'objectives', 'evidence', 'cases']
+const DEFAULT_ORDER = ['characters', 'scenes', 'objectives', 'evidence', 'cases', 'music']
 
-// ── 农历日期映射（腊月十九起算，游戏第1天=腊月十九） ──
+// ── 农历日期映射（腊月十九起算） ──
 
 const LUNAR_DATES = [
   '', '腊月十九', '腊月二十', '腊月廿一', '腊月廿二', '腊月廿三',
@@ -45,26 +46,33 @@ const CHAR_NOTES: Record<string, string> = {
   kuanggong: '两千双眼睛，没一双敢抬起来。',
 }
 
-// ── 舆图场景坐标（百分比，相对于地图容器） ──
+// ── 舆图平面图布局 (3×3 grid) ──
 
-const SCENE_POS: Record<string, { x: number; y: number }> = {
-  forest: { x: 8, y: 12 },
-  mine:   { x: 42, y: 6 },
-  boss:   { x: 76, y: 16 },
-  bandit: { x: 6, y: 58 },
-  camp:   { x: 40, y: 46 },
-  study:  { x: 76, y: 58 },
-  deep:   { x: 40, y: 86 },
+const PLAN_LAYOUT: (string | null)[][] = [
+  ['forest', 'mine', 'boss'],
+  ['bandit', 'camp', 'study'],
+  [null, 'deep', null],
+]
+
+const GRID_CENTER: Record<string, [number, number]> = {
+  forest: [17, 17], mine: [50, 17], boss: [83, 17],
+  bandit: [17, 50], camp: [50, 50], study: [83, 50],
+  deep: [50, 83],
 }
 
-const SCENE_LINKS: [string, string][] = [
-  ['camp', 'mine'],
-  ['camp', 'boss'],
-  ['camp', 'forest'],
-  ['camp', 'study'],
-  ['mine', 'deep'],
-  ['forest', 'bandit'],
+const PLAN_LINKS: [string, string][] = [
+  ['camp', 'mine'], ['camp', 'boss'], ['camp', 'forest'],
+  ['camp', 'study'], ['mine', 'deep'], ['forest', 'bandit'],
   ['boss', 'study'],
+]
+
+// ── 音乐波形参数（固定数组避免 re-render 抖动） ──
+
+const WAVE_BARS = [
+  { d: 0, t: 0.45 }, { d: 0.08, t: 0.55 }, { d: 0.16, t: 0.5 },
+  { d: 0.06, t: 0.6 }, { d: 0.2, t: 0.42 }, { d: 0.12, t: 0.58 },
+  { d: 0.04, t: 0.48 }, { d: 0.22, t: 0.52 }, { d: 0.1, t: 0.44 },
+  { d: 0.18, t: 0.56 },
 ]
 
 // ── 笔记本扉页 ───────────────────────────────────────
@@ -130,7 +138,7 @@ function CharacterGallery({ onClose }: { onClose: () => void }) {
     return [i >= 0 ? i : 0, 0]
   })
 
-  /* ── 触摸滑动 ── */
+  /* ── 触摸滑动（绑在稳定外层容器） ── */
   const touchX = useRef(0)
   const onTouchStart = (e: React.TouchEvent) => { touchX.current = e.touches[0].clientX }
   const onTouchEnd = (e: React.TouchEvent) => {
@@ -152,8 +160,12 @@ function CharacterGallery({ onClose }: { onClose: () => void }) {
     <div className={`${P}-dash-section`}>
       <div className={`${P}-dash-section-title`}>人物</div>
 
-      {/* 轮播区 */}
-      <div className={`${P}-dash-carousel`}>
+      {/* 触摸区域绑在稳定外层 */}
+      <div
+        className={`${P}-dash-carousel`}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
         <AnimatePresence initial={false} mode="wait" custom={direction}>
           <motion.div
             key={idx}
@@ -164,12 +176,9 @@ function CharacterGallery({ onClose }: { onClose: () => void }) {
             exit="exit"
             transition={{ duration: 0.32, ease: 'easeInOut' }}
             className={`${P}-dash-photo ${isActive ? `${P}-dash-photo-active` : ''}`}
-            onTouchStart={onTouchStart}
-            onTouchEnd={onTouchEnd}
             onClick={() => handleClick(id)}
             style={{ cursor: isAvailable ? 'pointer' : 'default' }}
           >
-            {/* 照片白边框 */}
             <div className={`${P}-dash-photo-frame`}>
               {isAvailable ? (
                 <>
@@ -195,14 +204,12 @@ function CharacterGallery({ onClose }: { onClose: () => void }) {
               )}
             </div>
 
-            {/* 批注区 */}
             {isAvailable && (
               <div className={`${P}-dash-photo-note`}>
                 「{CHAR_NOTES[id] ?? ''}」
               </div>
             )}
 
-            {/* 数值条 */}
             {isAvailable && char.statMetas.slice(0, 2).map((meta) => {
               const val = stats[meta.key] ?? 0
               return (
@@ -225,7 +232,6 @@ function CharacterGallery({ onClose }: { onClose: () => void }) {
         </AnimatePresence>
       </div>
 
-      {/* 分页圆点 */}
       <div className={`${P}-dash-dots`}>
         {charEntries.map(([cid], i) => (
           <button
@@ -239,7 +245,7 @@ function CharacterGallery({ onClose }: { onClose: () => void }) {
   )
 }
 
-// ── 舆图（手绘地图） ─────────────────────────────────
+// ── 舆图（平面图 3×3 grid + SVG 连线） ──────────────
 
 function SceneMap({ onClose }: { onClose: () => void }) {
   const { currentScene, unlockedScenes, selectScene } = useGameStore()
@@ -254,56 +260,55 @@ function SceneMap({ onClose }: { onClose: () => void }) {
     <div className={`${P}-dash-section`}>
       <div className={`${P}-dash-section-title`}>舆图</div>
 
-      <div className={`${P}-dash-map`}>
-        {/* 连接线 SVG */}
-        <svg className={`${P}-dash-map-svg`} viewBox="0 0 100 100" preserveAspectRatio="none">
-          {SCENE_LINKS.map(([a, b]) => {
-            const pa = SCENE_POS[a], pb = SCENE_POS[b]
+      <div className={`${P}-dash-plan`}>
+        {/* SVG 连接线 */}
+        <svg className={`${P}-dash-plan-svg`} viewBox="0 0 100 100" preserveAspectRatio="none">
+          {PLAN_LINKS.map(([a, b]) => {
+            const pa = GRID_CENTER[a], pb = GRID_CENTER[b]
             if (!pa || !pb) return null
             const ok = unlockedScenes.includes(a) && unlockedScenes.includes(b)
             return (
               <line
                 key={`${a}-${b}`}
-                x1={pa.x + 7} y1={pa.y + 5}
-                x2={pb.x + 7} y2={pb.y + 5}
+                x1={pa[0]} y1={pa[1]} x2={pb[0]} y2={pb[1]}
                 stroke={ok ? 'rgba(139,105,20,0.4)' : 'rgba(139,105,20,0.12)'}
                 strokeWidth="0.6"
-                strokeDasharray={ok ? '2 1.5' : '1 2'}
+                strokeDasharray="2 1.5"
               />
             )
           })}
         </svg>
 
-        {/* 场景节点 */}
-        {Object.values(SCENES).map((s) => {
-          const pos = SCENE_POS[s.id]
-          if (!pos) return null
-          const isCurrent = s.id === currentScene
-          const isLocked = !unlockedScenes.includes(s.id)
+        {/* 3×3 格子 */}
+        <div className={`${P}-dash-plan-grid`}>
+          {PLAN_LAYOUT.flat().map((sid, i) => {
+            if (!sid) return <div key={i} className={`${P}-dash-plan-empty`} />
+            const s = SCENES[sid]
+            const isCurrent = sid === currentScene
+            const isLocked = !unlockedScenes.includes(sid)
 
-          return (
-            <button
-              key={s.id}
-              className={[
-                `${P}-dash-map-node`,
-                isCurrent && `${P}-dash-map-node-cur`,
-                isLocked && `${P}-dash-map-node-lock`,
-              ].filter(Boolean).join(' ')}
-              style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-              onClick={() => handleClick(s.id)}
-              disabled={isLocked}
-            >
-              <span className={`${P}-dash-map-icon`}>{isLocked ? '?' : s.icon}</span>
-              <span className={`${P}-dash-map-name`}>{isLocked ? '未知' : s.name}</span>
-              {isCurrent && <span className={`${P}-dash-map-ping`} />}
-            </button>
-          )
-        })}
-
-        {/* 装饰文字 */}
-        <span className={`${P}-dash-map-deco`} style={{ left: '25%', top: '28%' }}>〰</span>
-        <span className={`${P}-dash-map-deco`} style={{ left: '62%', top: '38%' }}>山</span>
-        <span className={`${P}-dash-map-deco`} style={{ right: '5%', top: '42%' }}>路</span>
+            return (
+              <button
+                key={sid}
+                className={[
+                  `${P}-dash-plan-cell`,
+                  isCurrent && `${P}-dash-plan-cur`,
+                  isLocked && `${P}-dash-plan-lock`,
+                ].filter(Boolean).join(' ')}
+                onClick={() => handleClick(sid)}
+                disabled={isLocked}
+              >
+                <span className={`${P}-dash-plan-icon`}>
+                  {isLocked ? '?' : s.icon}
+                </span>
+                <span className={`${P}-dash-plan-name`}>
+                  {isLocked ? '未知' : s.name}
+                </span>
+                {isCurrent && <span className={`${P}-dash-plan-ping`} />}
+              </button>
+            )
+          })}
+        </div>
       </div>
     </div>
   )
@@ -329,7 +334,6 @@ function Objectives() {
           </li>
         ))}
       </ul>
-
       <div className={`${P}-dash-clue-track`}>
         <span className={`${P}-dash-clue-label`}>线索</span>
         <div className={`${P}-dash-clue-dots`}>
@@ -382,18 +386,9 @@ function EvidenceBoard() {
 
 function CaseBoard() {
   const { currentDay, triggeredEvents } = useGameStore()
-
   const cases = [
-    {
-      name: '陈大哥', status: '失踪',
-      detail: '靰鞡鞋整齐摆在门口。灶台的灰是冷的。',
-      visible: true,
-    },
-    {
-      name: '孙铁匠', status: '第5天失踪',
-      detail: '铺位空了，冻粥留着。',
-      visible: currentDay >= 5 || triggeredEvents.includes('sun_missing'),
-    },
+    { name: '陈大哥', status: '失踪', detail: '靰鞡鞋整齐摆在门口。灶台的灰是冷的。', visible: true },
+    { name: '孙铁匠', status: '第5天失踪', detail: '铺位空了，冻粥留着。', visible: currentDay >= 5 || triggeredEvents.includes('sun_missing') },
   ]
   const visibleCases = cases.filter((c) => c.visible)
 
@@ -419,6 +414,36 @@ function CaseBoard() {
   )
 }
 
+// ── 氛围音乐播放器 ───────────────────────────────────
+
+function MusicSection() {
+  const { isPlaying, toggle } = useBgm()
+
+  return (
+    <div className={`${P}-dash-section`}>
+      <div className={`${P}-dash-section-title`}>氛围</div>
+      <div className={`${P}-dash-music`}>
+        <div className={`${P}-dash-music-name`}>老金沟 · 雪夜</div>
+
+        {/* 波形可视化 */}
+        <div className={`${P}-dash-music-wave`}>
+          {WAVE_BARS.map((b, i) => (
+            <span
+              key={i}
+              className={`${P}-dash-music-bar ${isPlaying ? `${P}-dash-music-bar-on` : ''}`}
+              style={{ animationDelay: `${b.d}s`, animationDuration: `${b.t}s` }}
+            />
+          ))}
+        </div>
+
+        <button className={`${P}-dash-music-btn`} onClick={(e) => toggle(e)}>
+          {isPlaying ? '⏸ 暂停' : '▶ 播放'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ── 可拖拽 Section 包装 ──────────────────────────────
 
 function DashSection({ id, children }: { id: string; children: React.ReactNode }) {
@@ -426,12 +451,7 @@ function DashSection({ id, children }: { id: string; children: React.ReactNode }
   return (
     <Reorder.Item value={id} dragListener={false} dragControls={controls}>
       <div className={`${P}-dash-reorder`}>
-        <div
-          className={`${P}-dash-grip`}
-          onPointerDown={(e) => controls.start(e)}
-        >
-          ⋮⋮
-        </div>
+        <div className={`${P}-dash-grip`} onPointerDown={(e) => controls.start(e)}>⋮⋮</div>
         {children}
       </div>
     </Reorder.Item>
@@ -463,6 +483,7 @@ export default function DashboardDrawer({ onClose }: { onClose: () => void }) {
       case 'objectives': return <Objectives />
       case 'evidence':   return <EvidenceBoard />
       case 'cases':      return <CaseBoard />
+      case 'music':      return <MusicSection />
       default:           return null
     }
   }
@@ -483,14 +504,12 @@ export default function DashboardDrawer({ onClose }: { onClose: () => void }) {
         transition={{ type: 'spring', damping: 28, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* 封面标题 */}
         <div className={`${P}-dash-header`}>
           <div className={`${P}-dash-title`}>调查笔记</div>
           <div className={`${P}-dash-subtitle`}>林承义 · 私人</div>
           <button className={`${P}-dash-close`} onClick={onClose}>✕</button>
         </div>
 
-        {/* 滚动区 */}
         <div className={`${P}-dash-scroll ${P}-scrollbar`}>
           <FrontPage />
           <Reorder.Group

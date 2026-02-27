@@ -1756,157 +1756,7 @@ body {
 
 /* ── 5. 铜钱音乐播放器（CoinMusicPlayer）─────────── */
 
-.jg-coin-wrap {
-  position: relative;
-}
-
-.jg-coin-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  perspective: 200px;
-}
-
-/* 铜钱本体 */
-.jg-coin {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #b8941a 0%, #8B6914 50%, #6b5010 100%);
-  border: 1.5px solid #a67c00;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform-style: preserve-3d;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-}
-
-.jg-coin-hole {
-  width: 7px;
-  height: 7px;
-  background: #1a1510;
-  border: 1px solid #5a4020;
-}
-
-.jg-coin-spin {
-  animation: jgCoinSpin 3s linear infinite;
-}
-
-@keyframes jgCoinSpin {
-  to { transform: rotateY(360deg); }
-}
-
-/* 展开面板 */
-.jg-coin-panel {
-  position: absolute;
-  top: 40px;
-  right: 0;
-  width: 164px;
-  padding: 14px 12px;
-  background:
-    radial-gradient(ellipse at 30% 20%, rgba(139, 105, 20, 0.04) 0%, transparent 60%),
-    var(--bg-primary);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
-  z-index: 50;
-}
-
-.jg-coin-hero {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
-  perspective: 300px;
-}
-
-.jg-coin-lg {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #c8a42a 0%, #8B6914 45%, #5a3e0a 100%);
-  border: 2px solid #a67c00;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform-style: preserve-3d;
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.4),
-    inset 0 0 8px rgba(255, 200, 50, 0.1);
-}
-
-.jg-coin-hole-lg {
-  width: 13px;
-  height: 13px;
-  background: #1a1510;
-  border: 1.5px solid #5a4020;
-}
-
-.jg-coin-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-primary);
-  text-align: center;
-  margin-bottom: 10px;
-  font-family: 'KaiTi', 'STKaiti', serif;
-  letter-spacing: 1px;
-}
-
-/* 波形动画 5条 */
-.jg-coin-wave {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 3px;
-  height: 22px;
-  margin-bottom: 10px;
-}
-
-.jg-coin-bar {
-  width: 3px;
-  height: 4px;
-  background: var(--primary);
-  border-radius: 1px;
-}
-
-.jg-coin-bar-on {
-  animation: jgCoinWave 0.5s ease-in-out infinite alternate;
-}
-
-.jg-coin-bar:nth-child(1) { animation-delay: 0s; }
-.jg-coin-bar:nth-child(2) { animation-delay: 0.12s; }
-.jg-coin-bar:nth-child(3) { animation-delay: 0.24s; }
-.jg-coin-bar:nth-child(4) { animation-delay: 0.1s; }
-.jg-coin-bar:nth-child(5) { animation-delay: 0.05s; }
-
-@keyframes jgCoinWave {
-  from { height: 4px; }
-  to { height: 20px; }
-}
-
-.jg-coin-toggle {
-  display: block;
-  width: 100%;
-  padding: 6px;
-  background: var(--bg-hover);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text-secondary);
-  font-size: 12px;
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.2s;
-}
-
-.jg-coin-toggle:active {
-  background: var(--primary-light);
-  color: var(--primary);
-}
+/* （铜钱组件已移至笔记本内 MusicSection，header 仅保留简易开关） */
 
 /* ================================================================
  * 调查笔记本 Dashboard Drawer
@@ -2361,94 +2211,105 @@ body {
   box-shadow: 0 0 6px rgba(139, 105, 20, 0.4);
 }
 
-/* ── 舆图（手绘地图） ──────────────────────────────── */
+/* ── 舆图（平面图 3×3 grid） ─────────────────────────── */
 
-.jg-dash-map {
+.jg-dash-plan {
   position: relative;
   width: 100%;
-  aspect-ratio: 5 / 4;
   border-radius: 6px;
   overflow: hidden;
-  /* 泛黄羊皮纸底 */
   background:
     radial-gradient(ellipse at 30% 40%, rgba(180, 160, 110, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse at 70% 60%, rgba(139, 105, 20, 0.06) 0%, transparent 50%),
     linear-gradient(170deg, #1e1a12 0%, #16120a 100%);
   border: 1px solid rgba(139, 105, 20, 0.25);
   box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3);
+  padding: 10px;
 }
 
-/* 连接线 SVG */
-.jg-dash-map-svg {
+/* SVG 连线（绝对覆盖） */
+.jg-dash-plan-svg {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
 }
 
-/* 场景节点 */
-.jg-dash-map-node {
-  position: absolute;
-  z-index: 2;
+/* 3×3 网格 */
+.jg-dash-plan-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.jg-dash-plan-empty {
+  aspect-ratio: 1;
+}
+
+.jg-dash-plan-cell {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 4px 6px;
-  background: rgba(26, 21, 16, 0.7);
+  justify-content: center;
+  gap: 3px;
+  aspect-ratio: 1;
+  background: rgba(26, 21, 16, 0.75);
   border: 1px solid rgba(139, 105, 20, 0.3);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
-  transform: translate(-50%, -50%);
+  padding: 4px;
 }
 
-.jg-dash-map-node:active {
+.jg-dash-plan-cell:active {
   background: rgba(139, 105, 20, 0.15);
 }
 
-.jg-dash-map-icon {
-  font-size: 16px;
+.jg-dash-plan-icon {
+  font-size: 18px;
   line-height: 1;
 }
 
-.jg-dash-map-name {
-  font-size: 9px;
+.jg-dash-plan-name {
+  font-size: 10px;
   color: var(--text-secondary);
   font-family: 'KaiTi', 'STKaiti', serif;
   letter-spacing: 1px;
   white-space: nowrap;
+  text-align: center;
 }
 
 /* 当前位置 */
-.jg-dash-map-node-cur {
+.jg-dash-plan-cur {
   border-color: #8b2500;
   background: rgba(139, 37, 0, 0.12);
   box-shadow: 0 0 12px rgba(139, 37, 0, 0.3);
 }
 
-.jg-dash-map-node-cur .jg-dash-map-name {
+.jg-dash-plan-cur .jg-dash-plan-name {
   color: #d4cbb8;
   font-weight: 600;
 }
 
 /* 锁定 */
-.jg-dash-map-node-lock {
+.jg-dash-plan-lock {
   opacity: 0.3;
   cursor: default;
   border-style: dashed;
 }
 
-.jg-dash-map-node-lock .jg-dash-map-icon {
+.jg-dash-plan-lock .jg-dash-plan-icon {
   font-family: 'KaiTi', 'STKaiti', serif;
   font-size: 14px;
   color: var(--text-muted);
 }
 
 /* 当前位置脉冲 */
-.jg-dash-map-ping {
+.jg-dash-plan-ping {
   position: absolute;
   top: -2px;
   right: -2px;
@@ -2456,24 +2317,82 @@ body {
   height: 6px;
   border-radius: 50%;
   background: #8b2500;
-  animation: jgMapPing 1.5s ease-out infinite;
+  animation: jgPlanPing 1.5s ease-out infinite;
 }
 
-@keyframes jgMapPing {
+@keyframes jgPlanPing {
   0% { box-shadow: 0 0 0 0 rgba(139, 37, 0, 0.6); }
   70% { box-shadow: 0 0 0 8px rgba(139, 37, 0, 0); }
   100% { box-shadow: 0 0 0 0 rgba(139, 37, 0, 0); }
 }
 
-/* 装饰文字 */
-.jg-dash-map-deco {
-  position: absolute;
-  font-size: 10px;
-  color: rgba(139, 105, 20, 0.12);
+/* ── 笔记本音乐播放器 ────────────────────────────────── */
+
+.jg-dash-music {
+  padding: 14px;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(139, 105, 20, 0.06) 0%, transparent 70%),
+    rgba(26, 21, 16, 0.5);
+  border: 1px solid rgba(139, 105, 20, 0.2);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.jg-dash-music-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
   font-family: 'KaiTi', 'STKaiti', serif;
-  pointer-events: none;
-  z-index: 0;
   letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+/* 波形可视化 10条 */
+.jg-dash-music-wave {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  height: 32px;
+  margin-bottom: 14px;
+}
+
+.jg-dash-music-bar {
+  width: 3px;
+  height: 4px;
+  background: var(--primary);
+  border-radius: 1.5px;
+  transition: height 0.1s;
+}
+
+.jg-dash-music-bar-on {
+  animation: jgMusicWave 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes jgMusicWave {
+  from { height: 4px; }
+  to { height: 28px; }
+}
+
+.jg-dash-music-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'KaiTi', 'STKaiti', serif;
+  letter-spacing: 1px;
+}
+
+.jg-dash-music-btn:active {
+  background: var(--primary-light);
+  color: var(--primary);
 }
 
 /* ── 章节目标 ──────────────────────────────────────── */

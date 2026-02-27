@@ -1,11 +1,11 @@
 /**
  * [INPUT]: 依赖 store.ts 的 activeTab/setActiveTab/currentDay/currentPeriodIndex/cluesFound/storyRecords/showRecords/toggleRecords/showDashboard/toggleDashboard, bgm.ts, framer-motion
- * [OUTPUT]: 对外提供 AppShell 组件（铜钱音乐播放器 + 三向手势导航）
- * [POS]: 游戏主壳，Header(铜钱MusicPlayer+笔记本按钮) + Tab路由(左右滑动手势) + TabBar + RecordSheet + DashboardDrawer。被 App.tsx 唯一消费
+ * [OUTPUT]: 对外提供 AppShell 组件（简易BGM开关 + 三向手势导航）
+ * [POS]: 游戏主壳，Header(BgmToggle+笔记本按钮) + Tab路由(左右滑动手势) + TabBar + RecordSheet + DashboardDrawer。被 App.tsx 唯一消费
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
-import { useState, useRef } from 'react'
+import { useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore, PERIODS, getCurrentChapter } from '../../lib/store'
 import { useBgm } from '../../lib/bgm'
@@ -21,61 +21,6 @@ const TAB_CONFIG = [
   { key: 'dialogue',  icon: '💬', label: '对话' },
   { key: 'character', icon: '👤', label: '人物' },
 ] as const
-
-// ── 铜钱音乐播放器 ──────────────────────────────────
-
-function MusicPlayer() {
-  const { isPlaying, toggle } = useBgm()
-  const [open, setOpen] = useState(false)
-
-  return (
-    <div className={`${P}-coin-wrap`}>
-      {/* 铜钱按钮 */}
-      <button className={`${P}-coin-btn`} onClick={() => setOpen(!open)}>
-        <div className={`${P}-coin ${isPlaying ? `${P}-coin-spin` : ''}`}>
-          <div className={`${P}-coin-hole`} />
-        </div>
-      </button>
-
-      {/* 迷你面板 */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            className={`${P}-coin-panel`}
-            initial={{ opacity: 0, y: -8, scale: 0.92 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.92 }}
-            transition={{ duration: 0.2 }}
-          >
-            {/* 大铜钱 */}
-            <div className={`${P}-coin-hero`}>
-              <div className={`${P}-coin-lg ${isPlaying ? `${P}-coin-spin` : ''}`}>
-                <div className={`${P}-coin-hole-lg`} />
-              </div>
-            </div>
-
-            <div className={`${P}-coin-title`}>老金沟 · 雪夜</div>
-
-            {/* 波形 */}
-            <div className={`${P}-coin-wave`}>
-              {[0.4, 0.65, 0.5, 0.7, 0.45].map((dur, i) => (
-                <span
-                  key={i}
-                  className={`${P}-coin-bar ${isPlaying ? `${P}-coin-bar-on` : ''}`}
-                  style={{ animationDuration: `${dur}s` }}
-                />
-              ))}
-            </div>
-
-            <button className={`${P}-coin-toggle`} onClick={(e) => toggle(e)}>
-              {isPlaying ? '暂停' : '播放'}
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
 
 // ── RecordSheet ──────────────────────────────────────
 
@@ -116,6 +61,17 @@ function RecordSheet({ onClose }: { onClose: () => void }) {
         </div>
       </motion.div>
     </motion.div>
+  )
+}
+
+// ── Header 简易音乐开关 ──────────────────────────────
+
+function BgmToggle() {
+  const { isPlaying, toggle } = useBgm()
+  return (
+    <button className={`${P}-icon-btn`} onClick={(e) => toggle(e)}>
+      {isPlaying ? '🔊' : '🔇'}
+    </button>
   )
 }
 
@@ -165,7 +121,7 @@ export default function AppShell({ onMenuOpen }: { onMenuOpen: () => void }) {
           <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{chapter.name}</span>
         </div>
         <div className={`${P}-header-right`}>
-          <MusicPlayer />
+          <BgmToggle />
           <button className={`${P}-icon-btn`} onClick={onMenuOpen}>☰</button>
           <button className={`${P}-icon-btn`} onClick={toggleRecords}>📜</button>
         </div>
