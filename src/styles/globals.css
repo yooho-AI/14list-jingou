@@ -1383,3 +1383,487 @@ body {
 .jg-story-paragraph .char-name {
   font-weight: 600;
 }
+
+/* ================================================================
+ * 富 UI 组件系统
+ * 5 组件：角色档案卡 / 场景转场卡 / 线索获取卡 / 日历翻页 / 音乐播放器
+ * ================================================================ */
+
+/* ── 1. 角色档案卡（CharacterDossier）──────────────── */
+
+.jg-dossier-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: var(--bg-primary);
+  overflow: hidden;
+}
+
+.jg-dossier {
+  height: 100%;
+  overflow-y: auto;
+  position: relative;
+}
+
+.jg-dossier-close {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top));
+  right: 12px;
+  z-index: 130;
+  width: 36px;
+  height: 36px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--text-primary);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jg-dossier-seal {
+  position: fixed;
+  top: calc(14px + env(safe-area-inset-top));
+  left: 14px;
+  z-index: 130;
+  padding: 3px 10px;
+  background: #8b1a1a;
+  color: #f0d0a0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(139, 26, 26, 0.4);
+}
+
+/* 立绘区 */
+.jg-dossier-portrait {
+  position: relative;
+  width: 100%;
+  height: 50vh;
+  overflow: hidden;
+}
+
+.jg-dossier-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.jg-dossier-portrait-emoji {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 96px;
+  background: var(--bg-hover);
+}
+
+.jg-dossier-portrait-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(transparent, var(--bg-primary));
+}
+
+/* 姓名 + 头衔 */
+.jg-dossier-header {
+  padding: 0 20px;
+  margin-top: -24px;
+  position: relative;
+  z-index: 1;
+}
+
+.jg-dossier-name {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: 4px;
+  margin-bottom: 4px;
+}
+
+.jg-dossier-title {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* 基础信息标签 */
+.jg-dossier-tags {
+  display: flex;
+  gap: 8px;
+  padding: 14px 20px;
+}
+
+.jg-dossier-tag {
+  padding: 3px 12px;
+  background: rgba(139, 105, 20, 0.1);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* 分节 */
+.jg-dossier-section {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+}
+
+.jg-dossier-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.jg-dossier-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.jg-dossier-expand {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* 关系线索 */
+.jg-dossier-relation {
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.jg-dossier-hints {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.jg-dossier-hint {
+  padding: 2px 10px;
+  background: rgba(139, 105, 20, 0.06);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+/* 卷宗双线框装饰 */
+.jg-dossier-section::before {
+  display: none;
+}
+
+/* ── 2. 场景转场卡（SceneTransitionCard）──────────── */
+
+.jg-scene-card {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.jg-scene-card-bg {
+  position: absolute;
+  inset: 0;
+}
+
+.jg-scene-card-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.jg-scene-card-emoji {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  background: var(--bg-hover);
+}
+
+.jg-scene-card-mask {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(transparent 30%, rgba(0, 0, 0, 0.85));
+}
+
+.jg-scene-card-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  z-index: 1;
+}
+
+.jg-scene-card-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #8b1a1a;
+  color: #f0d0a0;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 2px;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.jg-scene-card-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.jg-scene-card-desc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+  font-style: italic;
+}
+
+/* ── 3. 线索获取卡（ClueCard）─────────────────────── */
+
+.jg-clue-card {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(139, 105, 20, 0.08);
+  border: 1px dashed var(--primary-border);
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.jg-clue-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.jg-clue-card-icon {
+  font-size: 20px;
+}
+
+.jg-clue-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  flex: 1;
+}
+
+.jg-clue-card-type {
+  padding: 2px 8px;
+  background: rgba(139, 105, 20, 0.15);
+  border-radius: 8px;
+  font-size: 10px;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.jg-clue-card-progress {
+  margin-top: 4px;
+}
+
+.jg-clue-card-count {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.jg-clue-card-track {
+  height: 6px;
+  background: rgba(139, 105, 20, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.jg-clue-card-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #d4a052);
+  border-radius: 3px;
+}
+
+/* ── 4. 日历翻页卡（DayCard）──────────────────────── */
+
+.jg-day-card {
+  width: 80%;
+  max-width: 220px;
+  margin: 12px auto;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(200, 185, 155, 0.15) 0%, transparent 50%),
+    linear-gradient(170deg, #f5f0e6 0%, #e8dcc8 50%, #ddd0b8 100%);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 0 40px rgba(80, 60, 20, 0.08);
+}
+
+.jg-day-card-tear {
+  height: 3px;
+  background: #c0392b;
+  opacity: 0.7;
+}
+
+.jg-day-card-body {
+  padding: 20px 16px;
+  text-align: center;
+}
+
+.jg-day-card-number {
+  font-size: 24px;
+  font-weight: 800;
+  color: #2c1a08;
+  letter-spacing: 6px;
+  margin-bottom: 6px;
+  font-family: 'KaiTi', 'STKaiti', serif;
+}
+
+.jg-day-card-date {
+  font-size: 12px;
+  color: #5a4020;
+  margin-bottom: 4px;
+  font-family: 'KaiTi', 'STKaiti', serif;
+}
+
+.jg-day-card-chapter {
+  font-size: 11px;
+  color: #8B6914;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+/* ── 5. 音乐播放器（MusicPlayer）──────────────────── */
+
+.jg-music-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.jg-music-disc {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    #2c1a08 0deg, #5a4020 60deg, #2c1a08 120deg,
+    #5a4020 180deg, #2c1a08 240deg, #5a4020 300deg, #2c1a08 360deg
+  );
+  border: 2px solid var(--primary-border);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jg-music-disc-inner {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.jg-music-spinning {
+  animation: jgSpin 3s linear infinite;
+}
+
+@keyframes jgSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* 迷你面板 */
+.jg-music-panel {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 160px;
+  padding: 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 50;
+}
+
+.jg-music-panel-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.jg-music-wave {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  height: 20px;
+  margin-bottom: 10px;
+}
+
+.jg-music-bar {
+  width: 3px;
+  height: 4px;
+  background: var(--primary);
+  border-radius: 1px;
+}
+
+.jg-music-bar-active {
+  animation: jgWave 0.5s ease-in-out infinite alternate;
+}
+
+.jg-music-bar:nth-child(1) { animation-delay: 0s; }
+.jg-music-bar:nth-child(2) { animation-delay: 0.15s; }
+.jg-music-bar:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes jgWave {
+  from { height: 4px; }
+  to { height: 18px; }
+}
+
+.jg-music-toggle {
+  display: block;
+  width: 100%;
+  padding: 6px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.jg-music-toggle:active {
+  background: var(--primary-light);
+  color: var(--primary);
+}

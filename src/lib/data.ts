@@ -32,6 +32,11 @@ export interface Message {
   content: string
   character?: string
   timestamp: number
+  // 富消息扩展
+  type?: 'scene-transition' | 'clue-found' | 'day-change'
+  sceneId?: string
+  itemId?: string
+  dayInfo?: { day: number; chapter: string }
 }
 
 // ── 数值元数据 ────────────────────────────────────────
@@ -123,7 +128,7 @@ export interface Ending {
 const LIU_JINYE: Character = {
   id: 'liujinye',
   name: '刘金爷',
-  portrait: '🧓',
+  portrait: '/characters/liujinye.jpg',
   gender: 'male',
   age: 55,
   title: '金把头',
@@ -145,7 +150,7 @@ const LIU_JINYE: Character = {
 const GUAN_SHENG: Character = {
   id: 'guansheng',
   name: '关胜',
-  portrait: '🗡️',
+  portrait: '/characters/guansheng.jpg',
   gender: 'male',
   age: 40,
   title: '大柜',
@@ -166,7 +171,7 @@ const GUAN_SHENG: Character = {
 const QIAO_ZHEN: Character = {
   id: 'qiaozhen',
   name: '巧珍',
-  portrait: '👩',
+  portrait: '/characters/qiaozhen.jpg',
   gender: 'female',
   age: 28,
   title: '林嫂',
@@ -187,7 +192,7 @@ const QIAO_ZHEN: Character = {
 const ZHAO_XIUCAI: Character = {
   id: 'zhaoxiucai',
   name: '赵秀才',
-  portrait: '📜',
+  portrait: '/characters/zhaoxiucai.jpg',
   gender: 'male',
   age: 45,
   title: '落第秀才',
@@ -208,7 +213,7 @@ const ZHAO_XIUCAI: Character = {
 const EERDUN: Character = {
   id: 'eerdun',
   name: '额尔敦',
-  portrait: '🏹',
+  portrait: '/characters/eerdun.jpg',
   gender: 'male',
   age: 60,
   title: '猎人长老',
@@ -229,7 +234,7 @@ const EERDUN: Character = {
 const KUANG_GONG: Character = {
   id: 'kuanggong',
   name: '矿工群体',
-  portrait: '⛏️',
+  portrait: '/characters/kuanggong.jpg',
   gender: 'male',
   age: 0,
   title: '众矿工',
@@ -266,7 +271,7 @@ export const SCENES: Record<string, Scene> = {
     name: '矿工棚户区',
     icon: '🏚️',
     description: '几十间窝棚挤在山坡，半地下地窨子',
-    background: '🏚️',
+    background: '/scenes/camp.jpg',
     atmosphere: '孩子哭声、咸菜味、从门缝灌进来的风',
     tags: ['住所', '枢纽', '情报'],
   },
@@ -275,7 +280,7 @@ export const SCENES: Record<string, Scene> = {
     name: '老金沟矿区',
     icon: '⛏️',
     description: '冲刷出的河谷，矿工蹲在浑浊水里转淘金盆',
-    background: '⛏️',
+    background: '/scenes/mine.jpg',
     atmosphere: '铁腥味、汗味、冻土开裂的闷响',
     tags: ['劳动', '日常', '线索'],
   },
@@ -284,7 +289,7 @@ export const SCENES: Record<string, Scene> = {
     name: '金把头大院',
     icon: '🏛️',
     description: '矿区唯一石砌建筑，院墙铺碎玻璃',
-    background: '🏛️',
+    background: '/scenes/boss.jpg',
     atmosphere: '旱烟味，水缸水滴滴答，权力的压迫感',
     tags: ['权力', '账本', '潜入'],
   },
@@ -293,7 +298,7 @@ export const SCENES: Record<string, Scene> = {
     name: '深矿禁区',
     icon: '🕳️',
     description: '天然溶洞，封禁碑矗立中央',
-    background: '🕳️',
+    background: '/scenes/deep.jpg',
     atmosphere: '水滴声像心跳，背后还有人在呼吸',
     tags: ['禁区', '封禁碑', '埋尸'],
     unlockCondition: { event: 'guansheng_intel' },
@@ -303,7 +308,7 @@ export const SCENES: Record<string, Scene> = {
     name: '林海边缘',
     icon: '🌲',
     description: '红松落叶松白桦密到阳光只漏碎片',
-    background: '🌲',
+    background: '/scenes/forest.jpg',
     atmosphere: '零下四十度鼻毛结冰，松脂味冷冽如巴掌',
     tags: ['自然', '额尔敦', '自由与死亡'],
   },
@@ -312,7 +317,7 @@ export const SCENES: Record<string, Scene> = {
     name: '胡子山寨',
     icon: '🏴',
     description: '背风山坳木屋围半圆，聚义厅永远有酒和刀',
-    background: '🏴',
+    background: '/scenes/bandit.jpg',
     atmosphere: '马嘶声、练拳呼喝、炖肉酒味',
     tags: ['江湖', '关胜', '情报'],
     unlockCondition: { event: 'guansheng_contact' },
@@ -322,7 +327,7 @@ export const SCENES: Record<string, Scene> = {
     name: '赵秀才书房',
     icon: '📜',
     description: '矿区最文明的空间，笔墨纸砚格格不入',
-    background: '📜',
+    background: '/scenes/study.jpg',
     atmosphere: '墨汁味在铁腥味统治的矿区是奢侈品',
     tags: ['文书', '翻译', '秘密'],
   },

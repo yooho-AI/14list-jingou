@@ -255,11 +255,23 @@ export const useGameStore = create<GameStore>()(
     selectScene: (sceneId: string) => {
       const state = get()
       if (!state.unlockedScenes.includes(sceneId)) return
+      const prevScene = state.currentScene
       set((s) => {
         s.currentScene = sceneId
         s.activeTab = 'dialogue'
       })
-      get().addSystemMessage(`你来到了${SCENES[sceneId].name}。`)
+      // 场景转场富消息（仅切换时插入）
+      if (prevScene !== sceneId) {
+        set((s) => {
+          s.messages.push({
+            id: makeId(), role: 'system',
+            content: `你来到了${SCENES[sceneId].name}。`,
+            timestamp: Date.now(),
+            type: 'scene-transition',
+            sceneId,
+          })
+        })
+      }
     },
 
     setActiveTab: (tab) => {
@@ -317,6 +329,7 @@ export const useGameStore = create<GameStore>()(
           () => {}
         )
 
+        const prevClues = get().cluesFound
         const { charChanges, globalChanges } = parseStatChanges(fullContent, get().characters)
         set((s) => {
           for (const change of charChanges) {
@@ -331,6 +344,19 @@ export const useGameStore = create<GameStore>()(
             }
           }
         })
+
+        // 线索获取富消息
+        const newClues = get().cluesFound
+        if (newClues > prevClues) {
+          set((s) => {
+            s.messages.push({
+              id: makeId(), role: 'system',
+              content: `发现了新线索`,
+              timestamp: Date.now(),
+              type: 'clue-found',
+            })
+          })
+        }
 
         // 连锁变动
         const postState = get()
@@ -371,6 +397,7 @@ export const useGameStore = create<GameStore>()(
     },
 
     advanceTime: () => {
+      const prevDay = get().currentDay
       set((s) => {
         s.actionPoints -= 1
         s.currentPeriodIndex += 1
@@ -402,7 +429,22 @@ export const useGameStore = create<GameStore>()(
       })
 
       const state = get()
-      get().addSystemMessage(`${PERIODS[state.currentPeriodIndex].icon} 第${state.currentDay}天 · ${PERIODS[state.currentPeriodIndex].name}`)
+
+      // 日历翻页富消息（仅日期变化时）
+      if (state.currentDay !== prevDay) {
+        const chapter = getCurrentChapter(state.currentDay)
+        set((s) => {
+          s.messages.push({
+            id: makeId(), role: 'system',
+            content: `第${state.currentDay}天`,
+            timestamp: Date.now(),
+            type: 'day-change',
+            dayInfo: { day: state.currentDay, chapter: chapter.name },
+          })
+        })
+      } else {
+        get().addSystemMessage(`${PERIODS[state.currentPeriodIndex].icon} 第${state.currentDay}天 · ${PERIODS[state.currentPeriodIndex].name}`)
+      }
 
       // 强制事件
       const events = getDayEvents(state.currentDay, state.triggeredEvents)

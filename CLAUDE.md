@@ -8,15 +8,16 @@ React 19 + Zustand 5 + Immer + Vite 7 + Tailwind CSS v4 + Framer Motion
 14list-jingou/
 ├── CLAUDE.md               - L1 项目宪法
 ├── worker/index.js          - ☆ 零修改：CF Worker 代理（备用）
+├── scripts/gen-images.mjs   - 火山方舟 SeeDream API 批量生图脚本
 ├── public/
-│   ├── audio/bgm.mp3        - 背景音乐
-│   ├── characters/           - 角色立绘 9:16 竖版 (jpg, 1152x2048)
-│   └── scenes/               - 场景背景 9:16 竖版 (jpg, 1152x2048)
+│   ├── audio/bgm.mp3        - 背景音乐（预留，用户手动生成）
+│   ├── characters/           - 6 角色立绘 9:16 竖版 (jpg, 1440x2560)
+│   └── scenes/               - 7 场景背景 9:16 竖版 + crawl-bg.mp4
 ├── src/
 │   ├── main.tsx              - ☆ 零修改：React 入口
 │   ├── App.tsx               - 根组件：开场/游戏二态 + EndingModal + MenuOverlay
-│   ├── lib/                  - 核心逻辑层 (6 文件)
-│   ├── styles/globals.css    - 全局样式，jg- 前缀，暗金冷峻主题
+│   ├── lib/                  - 核心逻辑层 (8 文件)
+│   ├── styles/globals.css    - 全局样式，jg- 前缀，暗金冷峻主题 + 5组件富UI样式
 │   └── components/game/      - 游戏组件层 (4 文件)
 ├── index.html                - ⛏️ favicon
 ├── package.json              - name: jingou
@@ -34,11 +35,31 @@ React 19 + Zustand 5 + Immer + Vite 7 + Tailwind CSS v4 + Framer Motion
 - **调查进度**：cluesFound (0-12) 全局计数器
 - **连锁反应**：矿工怀疑≥50→刘金爷警觉+15，刘金爷警觉≥60→窝棚被翻
 
+## 富UI组件系统
+
+5 个 SillyTavern 风格的精致组件，嵌入对话流和 Tab 交互：
+
+| 组件 | 位置 | 触发 | 视觉风格 |
+|------|------|------|----------|
+| CharacterDossier | tab-character | 点击角色 | 全屏卷宗档案卡，密印+立绘+数值条+性格 |
+| SceneTransitionCard | tab-dialogue | selectScene | 场景大图+Ken Burns+电影字幕卡 |
+| ClueCard | tab-dialogue | 线索+1 | 虚线框+去模糊动画+进度条 |
+| DayCard | tab-dialogue | 日期变化 | 日历撕页飘落+楷体大字+红色撕痕 |
+| MusicPlayer | app-shell header | 始终可用 | 唱片旋转+迷你面板+波形动画 |
+
+## 富消息机制
+
+Message 类型扩展 `type` 字段路由渲染：
+- `scene-transition` → SceneTransitionCard（selectScene 触发）
+- `clue-found` → ClueCard（cluesFound 增长时触发）
+- `day-change` → DayCard（advanceTime 日期变化时触发）
+
 ## 法则
 
 - CSS 前缀 `jg-`，主题色 `#8B6914`（暗金）
 - ☆ 标记文件绝不修改
 - StatMeta 驱动渲染，零 if/else
 - 结局映射表数据驱动
+- 图片素材由 scripts/gen-images.mjs 调用火山方舟 API 生成
 
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md

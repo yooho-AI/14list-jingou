@@ -1,10 +1,11 @@
 /**
- * [INPUT]: 依赖 store.ts 的 activeTab/setActiveTab/currentDay/currentPeriodIndex/cluesFound/storyRecords/showRecords/toggleRecords, framer-motion
- * [OUTPUT]: 对外提供 AppShell 组件
- * [POS]: 游戏主壳，Header + Tab 路由 + TabBar + RecordSheet。被 App.tsx 唯一消费
+ * [INPUT]: 依赖 store.ts 的 activeTab/setActiveTab/currentDay/currentPeriodIndex/cluesFound/storyRecords/showRecords/toggleRecords, bgm.ts, framer-motion
+ * [OUTPUT]: 对外提供 AppShell 组件 + MusicPlayer 唱片播放器
+ * [POS]: 游戏主壳，Header(MusicPlayer) + Tab 路由 + TabBar + RecordSheet。被 App.tsx 唯一消费
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore, PERIODS, getCurrentChapter } from '../../lib/store'
 import { useBgm } from '../../lib/bgm'
@@ -19,6 +20,54 @@ const TAB_CONFIG = [
   { key: 'dialogue',  icon: '💬', label: '对话' },
   { key: 'character', icon: '👤', label: '人物' },
 ] as const
+
+// ── MusicPlayer（留声机唱片感）────────────────────────
+
+function MusicPlayer() {
+  const { isPlaying, toggle } = useBgm()
+  const [showPanel, setShowPanel] = useState(false)
+
+  return (
+    <div style={{ position: 'relative' }}>
+      {/* 唱片按钮 */}
+      <button
+        className={`${P}-music-btn`}
+        onClick={() => setShowPanel(!showPanel)}
+      >
+        <div className={`${P}-music-disc ${isPlaying ? `${P}-music-spinning` : ''}`}>
+          <div className={`${P}-music-disc-inner`} />
+        </div>
+      </button>
+
+      {/* 迷你面板 */}
+      <AnimatePresence>
+        {showPanel && (
+          <motion.div
+            className={`${P}-music-panel`}
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className={`${P}-music-panel-title`}>老金沟 · 雪夜</div>
+            {/* 波形动画 */}
+            <div className={`${P}-music-wave`}>
+              <span className={`${P}-music-bar ${isPlaying ? `${P}-music-bar-active` : ''}`} style={{ animationDuration: '0.4s' }} />
+              <span className={`${P}-music-bar ${isPlaying ? `${P}-music-bar-active` : ''}`} style={{ animationDuration: '0.6s' }} />
+              <span className={`${P}-music-bar ${isPlaying ? `${P}-music-bar-active` : ''}`} style={{ animationDuration: '0.5s' }} />
+            </div>
+            <button
+              className={`${P}-music-toggle`}
+              onClick={(e) => { toggle(e); }}
+            >
+              {isPlaying ? '暂停' : '播放'}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
 
 // ── RecordSheet ──────────────────────────────────────
 
@@ -74,7 +123,6 @@ export default function AppShell({ onMenuOpen }: { onMenuOpen: () => void }) {
     currentDay, currentPeriodIndex, cluesFound,
     showRecords, toggleRecords,
   } = useGameStore()
-  const { isPlaying: musicOn, toggle: handleMusic } = useBgm()
 
   const period = PERIODS[currentPeriodIndex]
   const chapter = getCurrentChapter(currentDay)
@@ -96,9 +144,7 @@ export default function AppShell({ onMenuOpen }: { onMenuOpen: () => void }) {
           </span>
         </div>
         <div className={`${P}-header-right`}>
-          <button className={`${P}-icon-btn`} onClick={handleMusic}>
-            {musicOn ? '🔊' : '🔇'}
-          </button>
+          <MusicPlayer />
           <button className={`${P}-icon-btn`} onClick={onMenuOpen}>
             ☰
           </button>

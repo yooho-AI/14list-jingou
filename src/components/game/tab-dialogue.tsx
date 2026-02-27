@@ -1,13 +1,14 @@
 /**
- * [INPUT]: 依赖 store.ts 的 messages/isTyping/streamingContent/sendMessage/inventory/useItem, parser.ts, data.ts
- * [OUTPUT]: 对外提供 TabDialogue 组件
- * [POS]: 对话 Tab，聊天气泡 + 快捷操作 + 道具栏 + 输入框。被 app-shell 消费
+ * [INPUT]: 依赖 store.ts 的 messages/isTyping/streamingContent/sendMessage/inventory/useItem/cluesFound, parser.ts, data.ts
+ * [OUTPUT]: 对外提供 TabDialogue 组件 + SceneTransitionCard + ClueCard + DayCard 富消息组件
+ * [POS]: 对话 Tab，聊天气泡 + 富消息卡片 + 快捷操作 + 道具栏 + 输入框。被 app-shell 消费
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useGameStore, QUICK_ACTIONS, ITEMS, STORY_INFO } from '../../lib/store'
+import { useGameStore, QUICK_ACTIONS, ITEMS, SCENES, STORY_INFO } from '../../lib/store'
+import type { Message } from '../../lib/store'
 import { parseStoryParagraph } from '../../lib/parser'
 
 const P = 'jg'
@@ -41,9 +42,131 @@ function LetterCard() {
   )
 }
 
+// ── 场景转场卡（电影字幕卡 + 场景大图） ──────────────
+
+function SceneTransitionCard({ msg }: { msg: Message }) {
+  const scene = msg.sceneId ? SCENES[msg.sceneId] : null
+  if (!scene) return null
+
+  return (
+    <motion.div
+      className={`${P}-scene-card`}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+    >
+      {/* 场景大图背景 */}
+      <div className={`${P}-scene-card-bg`}>
+        {scene.background.startsWith('/') ? (
+          <motion.img
+            src={scene.background} alt={scene.name}
+            animate={{ scale: [1, 1.05] }}
+            transition={{ duration: 8, ease: 'linear' }}
+          />
+        ) : (
+          <div className={`${P}-scene-card-emoji`}>{scene.background}</div>
+        )}
+        <div className={`${P}-scene-card-mask`} />
+      </div>
+
+      {/* 场景信息 */}
+      <div className={`${P}-scene-card-info`}>
+        <span className={`${P}-scene-card-badge`}>📍 当前</span>
+        <h3 className={`${P}-scene-card-name`}>{scene.icon} {scene.name}</h3>
+        <p className={`${P}-scene-card-desc`}>{scene.atmosphere}</p>
+      </div>
+    </motion.div>
+  )
+}
+
+// ── 线索获取卡片（从泥土中翻出旧物） ────────────────
+
+function ClueCard() {
+  const { cluesFound } = useGameStore()
+
+  return (
+    <motion.div
+      className={`${P}-clue-card`}
+      initial={{ opacity: 0, filter: 'blur(10px)', y: 20 }}
+      animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+    >
+      <div className={`${P}-clue-card-header`}>
+        <span className={`${P}-clue-card-icon`}>🔍</span>
+        <span className={`${P}-clue-card-title`}>发现新线索</span>
+        <span className={`${P}-clue-card-type`}>调查</span>
+      </div>
+
+      {/* 线索进度 */}
+      <div className={`${P}-clue-card-progress`}>
+        <span className={`${P}-clue-card-count`}>
+          线索进度 <motion.span
+            key={cluesFound}
+            initial={{ scale: 1.5, color: '#f59e0b' }}
+            animate={{ scale: 1, color: 'var(--primary)' }}
+            transition={{ duration: 0.4 }}
+          >{cluesFound}</motion.span>/12
+        </span>
+        <div className={`${P}-clue-card-track`}>
+          <motion.div
+            className={`${P}-clue-card-fill`}
+            initial={{ width: `${((cluesFound - 1) / 12) * 100}%` }}
+            animate={{ width: `${(cluesFound / 12) * 100}%` }}
+            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
+          />
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+// ── 日历翻页卡（老式日历撕页飘落） ──────────────────
+
+function DayCard({ msg }: { msg: Message }) {
+  if (!msg.dayInfo) return null
+
+  // 光绪三十二年 = 1906年，腊月起算
+  const DAY_NAMES = ['', '初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
+    '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十']
+
+  return (
+    <motion.div
+      className={`${P}-day-card`}
+      initial={{ opacity: 0, y: -40, rotate: -5 }}
+      animate={{ opacity: 1, y: 0, rotate: 0 }}
+      transition={{ type: 'spring', damping: 18, stiffness: 200 }}
+    >
+      <div className={`${P}-day-card-tear`} />
+      <div className={`${P}-day-card-body`}>
+        <div className={`${P}-day-card-number`}>
+          {`第${msg.dayInfo.day}天`.split('').map((ch, i) => (
+            <motion.span
+              key={i}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: i * 0.08 }}
+            >{ch}</motion.span>
+          ))}
+        </div>
+        <div className={`${P}-day-card-date`}>
+          腊月{DAY_NAMES[msg.dayInfo.day] ?? `第${msg.dayInfo.day}日`}
+        </div>
+        <div className={`${P}-day-card-chapter`}>
+          {msg.dayInfo.chapter}
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
 // ── MessageBubble ─────────────────────────────────────
 
-function MessageBubble({ msg }: { msg: { id: string; role: string; content: string } }) {
+function MessageBubble({ msg }: { msg: Message }) {
+  // 富消息路由
+  if (msg.type === 'scene-transition') return <SceneTransitionCard msg={msg} />
+  if (msg.type === 'clue-found') return <ClueCard />
+  if (msg.type === 'day-change') return <DayCard msg={msg} />
+
   if (msg.role === 'system') {
     return (
       <motion.div

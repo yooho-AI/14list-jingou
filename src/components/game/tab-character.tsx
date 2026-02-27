@@ -1,11 +1,12 @@
 /**
  * [INPUT]: 依赖 store.ts 的 characters/currentCharacter/selectCharacter/characterStats/currentDay
- * [OUTPUT]: 对外提供 TabCharacter 组件
- * [POS]: 人物 Tab，当前人物卡(左绘右值) + SVG关系图谱 + 全部人物(2列)。被 app-shell 消费
+ * [OUTPUT]: 对外提供 TabCharacter 组件 + CharacterDossier 全屏档案卡
+ * [POS]: 人物 Tab，当前人物卡 + SVG关系图谱 + 全部人物 + 点击展开全屏档案卡。被 app-shell 消费
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
-import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore, getAvailableCharacters } from '../../lib/store'
 import type { StatMeta, Character } from '../../lib/store'
 
@@ -44,7 +45,7 @@ function SmallAvatar({ src, size = 28 }: { src: string; size?: number }) {
 
 // ── StatBar ───────────────────────────────────────────
 
-function StatBar({ meta, value }: { meta: StatMeta; value: number }) {
+function StatBar({ meta, value, delay = 0 }: { meta: StatMeta; value: number; delay?: number }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
       <span style={{ fontSize: 11, color: 'var(--text-secondary)', minWidth: 36, whiteSpace: 'nowrap' }}>{meta.icon} {meta.label}</span>
@@ -53,7 +54,7 @@ function StatBar({ meta, value }: { meta: StatMeta; value: number }) {
           style={{ height: '100%', borderRadius: 3, backgroundColor: meta.color }}
           initial={{ width: 0 }}
           animate={{ width: `${value}%` }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          transition={{ duration: 0.6, ease: 'easeOut', delay }}
         />
       </div>
       <span style={{ fontSize: 11, fontWeight: 600, color: meta.color, minWidth: 20, textAlign: 'right' }}>{value}</span>
@@ -61,7 +62,7 @@ function StatBar({ meta, value }: { meta: StatMeta; value: number }) {
   )
 }
 
-// ── 关系标签（没有 relation 类数值时用身份描述） ──────
+// ── 关系标签 ──────────────────────────────────────────
 
 const STATIC_RELATIONS: Record<string, string> = {
   qiaozhen: '妻子',
@@ -78,6 +79,104 @@ function getRelationLabel(char: Character, stats: Record<string, number>): { tex
   return { text: STATIC_RELATIONS[char.id] ?? char.title, color: 'var(--text-muted)' }
 }
 
+// ── 角色档案卡（全屏卷宗） ───────────────────────────
+
+function CharacterDossier({ char, stats, onClose }: {
+  char: Character
+  stats: Record<string, number>
+  onClose: () => void
+}) {
+  const [expanded, setExpanded] = useState(false)
+  const rel = getRelationLabel(char, stats)
+
+  return (
+    <motion.div
+      className={`${P}-dossier-overlay`}
+      initial={{ x: '100%' }}
+      animate={{ x: 0 }}
+      exit={{ x: '100%' }}
+      transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+    >
+      <div className={`${P}-dossier ${P}-scrollbar`}>
+        {/* 关闭 */}
+        <button className={`${P}-dossier-close`} onClick={onClose}>✕</button>
+
+        {/* 密印标记 */}
+        <div className={`${P}-dossier-seal`}>【卷宗】</div>
+
+        {/* 立绘区 */}
+        <div className={`${P}-dossier-portrait`}>
+          {char.portrait.startsWith('/') ? (
+            <motion.img
+              src={char.portrait} alt={char.name}
+              animate={{ scale: [1, 1.02, 1] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          ) : (
+            <div className={`${P}-dossier-portrait-emoji`}>{char.portrait}</div>
+          )}
+          <div className={`${P}-dossier-portrait-fade`} />
+        </div>
+
+        {/* 姓名 + 头衔 */}
+        <div className={`${P}-dossier-header`}>
+          <h2 className={`${P}-dossier-name`}>{char.name}</h2>
+          <p className={`${P}-dossier-title`}>{char.title} · {char.description}</p>
+        </div>
+
+        {/* 基础信息条 */}
+        <div className={`${P}-dossier-tags`}>
+          <span className={`${P}-dossier-tag`}>{char.gender === 'female' ? '女' : '男'}</span>
+          {char.age > 0 && <span className={`${P}-dossier-tag`}>{char.age}岁</span>}
+          <span className={`${P}-dossier-tag`}>{char.title}</span>
+        </div>
+
+        {/* 数值区 */}
+        <div className={`${P}-dossier-section`}>
+          <div className={`${P}-dossier-section-title`}>数值</div>
+          {char.statMetas.map((meta, i) => (
+            <StatBar key={meta.key} meta={meta} value={stats[meta.key] ?? 0} delay={i * 0.1} />
+          ))}
+        </div>
+
+        {/* 性格描述 */}
+        <div className={`${P}-dossier-section`}>
+          <div className={`${P}-dossier-section-title`}>性情</div>
+          <p className={`${P}-dossier-text`}>
+            {expanded ? char.personality : char.personality.slice(0, 40)}
+            {char.personality.length > 40 && (
+              <button
+                className={`${P}-dossier-expand`}
+                onClick={() => setExpanded(!expanded)}
+              >
+                {expanded ? ' 收起' : '...展开'}
+              </button>
+            )}
+          </p>
+          <p className={`${P}-dossier-text`} style={{ fontStyle: 'italic', color: 'var(--text-muted)', marginTop: 6 }}>
+            「{char.speakingStyle}」
+          </p>
+        </div>
+
+        {/* 关系线索 */}
+        <div className={`${P}-dossier-section`}>
+          <div className={`${P}-dossier-section-title`}>关系</div>
+          <div className={`${P}-dossier-relation`}>
+            <span style={{ color: rel.color, fontWeight: 600 }}>{rel.text}</span>
+          </div>
+          <div className={`${P}-dossier-hints`}>
+            {char.triggerPoints.map((tp, i) => (
+              <span key={i} className={`${P}-dossier-hint`}>
+                {tp.slice(0, 4)}{'···'}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
 // ── SVG 关系图谱 ──────────────────────────────────────
 
 const W = 380
@@ -87,47 +186,31 @@ const CY = H / 2
 const R = 105
 const NODE_R = 22
 
-function RelationGraph() {
-  const { characters, characterStats, currentDay, selectCharacter, currentCharacter } = useGameStore()
+function RelationGraph({ onNodeClick }: { onNodeClick: (id: string) => void }) {
+  const { characters, characterStats, currentDay, currentCharacter } = useGameStore()
   const available = getAvailableCharacters(currentDay, characters)
   const entries = Object.entries(available)
 
-  // 环形布局：NPC 节点围绕中心
   const nodes = entries.map(([id, char], i) => {
     const angle = (Math.PI * 2 * i) / entries.length - Math.PI / 2
-    return {
-      id,
-      char,
-      x: CX + R * Math.cos(angle),
-      y: CY + R * Math.sin(angle),
-    }
+    return { id, char, x: CX + R * Math.cos(angle), y: CY + R * Math.sin(angle) }
   })
 
   return (
-    <svg
-      viewBox={`0 0 ${W} ${H}`}
-      style={{ width: '100%', height: 'auto', marginBottom: 16 }}
-    >
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto', marginBottom: 16 }}>
       {/* 连线 */}
       {nodes.map((node) => {
         const stats = characterStats[node.id] ?? {}
         const rel = getRelationLabel(node.char, stats)
-
-        // 连线中点
         const mx = (CX + node.x) / 2
         const my = (CY + node.y) / 2
-
-        // 连线角度
         const dx = node.x - CX
         const dy = node.y - CY
         const len = Math.sqrt(dx * dx + dy * dy)
-
-        // 缩短连线：从中心节点边缘到 NPC 节点边缘
         const sx = CX + (dx / len) * (NODE_R + 2)
         const sy = CY + (dy / len) * (NODE_R + 2)
         const ex = node.x - (dx / len) * (NODE_R + 2)
         const ey = node.y - (dy / len) * (NODE_R + 2)
-
         const isSelected = node.id === currentCharacter
 
         return (
@@ -138,28 +221,13 @@ function RelationGraph() {
               strokeWidth={isSelected ? 2 : 1}
               strokeDasharray={isSelected ? 'none' : '4 3'}
             />
-            {/* 关系标签背景 */}
-            <rect
-              x={mx - 28} y={my - 8}
-              width={56} height={16}
-              rx={4}
-              fill="var(--bg-primary)"
-              opacity={0.9}
-            />
-            <text
-              x={mx} y={my + 3}
-              textAnchor="middle"
-              fontSize={9}
-              fontWeight={600}
-              fill={rel.color}
-            >
-              {rel.text}
-            </text>
+            <rect x={mx - 28} y={my - 8} width={56} height={16} rx={4} fill="var(--bg-primary)" opacity={0.9} />
+            <text x={mx} y={my + 3} textAnchor="middle" fontSize={9} fontWeight={600} fill={rel.color}>{rel.text}</text>
           </g>
         )
       })}
 
-      {/* 中心节点 = 玩家 */}
+      {/* 中心节点 */}
       <circle cx={CX} cy={CY} r={NODE_R + 4} fill="none" stroke="var(--primary)" strokeWidth={2.5} opacity={0.6} />
       <circle cx={CX} cy={CY} r={NODE_R} fill="var(--primary-light)" stroke="var(--primary)" strokeWidth={1.5} />
       <text x={CX} y={CY + 1} textAnchor="middle" dominantBaseline="middle" fontSize={16}>🧑</text>
@@ -169,28 +237,13 @@ function RelationGraph() {
       {nodes.map((node) => {
         const isSelected = node.id === currentCharacter
         return (
-          <g
-            key={`node-${node.id}`}
-            style={{ cursor: 'pointer' }}
-            onClick={() => selectCharacter(node.id)}
-          >
-            {isSelected && (
-              <circle cx={node.x} cy={node.y} r={NODE_R + 4} fill="none" stroke={node.char.themeColor} strokeWidth={2} opacity={0.5} />
-            )}
-            <circle
-              cx={node.x} cy={node.y} r={NODE_R}
-              fill="rgba(139,105,20,0.08)"
-              stroke={isSelected ? node.char.themeColor : 'var(--border)'}
-              strokeWidth={isSelected ? 1.5 : 1}
-            />
+          <g key={`node-${node.id}`} style={{ cursor: 'pointer' }} onClick={() => onNodeClick(node.id)}>
+            {isSelected && <circle cx={node.x} cy={node.y} r={NODE_R + 4} fill="none" stroke={node.char.themeColor} strokeWidth={2} opacity={0.5} />}
+            <circle cx={node.x} cy={node.y} r={NODE_R} fill="rgba(139,105,20,0.08)" stroke={isSelected ? node.char.themeColor : 'var(--border)'} strokeWidth={isSelected ? 1.5 : 1} />
             <text x={node.x} y={node.y + 1} textAnchor="middle" dominantBaseline="middle" fontSize={16}>
               {node.char.portrait.startsWith('/') ? '👤' : node.char.portrait}
             </text>
-            <text
-              x={node.x} y={node.y + NODE_R + 13}
-              textAnchor="middle" fontSize={10} fontWeight={600}
-              fill={isSelected ? node.char.themeColor : 'var(--text-secondary)'}
-            >
+            <text x={node.x} y={node.y + NODE_R + 13} textAnchor="middle" fontSize={10} fontWeight={600} fill={isSelected ? node.char.themeColor : 'var(--text-secondary)'}>
               {node.char.name}
             </text>
           </g>
@@ -203,14 +256,20 @@ function RelationGraph() {
 // ── TabCharacter ──────────────────────────────────────
 
 export default function TabCharacter() {
-  const {
-    characters, currentCharacter, selectCharacter,
-    characterStats, currentDay,
-  } = useGameStore()
+  const { characters, currentCharacter, selectCharacter, characterStats, currentDay } = useGameStore()
+  const [dossierCharId, setDossierCharId] = useState<string | null>(null)
 
   const available = getAvailableCharacters(currentDay, characters)
   const char = currentCharacter ? characters[currentCharacter] : null
   const stats = currentCharacter ? (characterStats[currentCharacter] ?? {}) : {}
+
+  const dossierChar = dossierCharId ? characters[dossierCharId] : null
+  const dossierStats = dossierCharId ? (characterStats[dossierCharId] ?? {}) : {}
+
+  const handleCharClick = (id: string) => {
+    selectCharacter(id)
+    setDossierCharId(id)
+  }
 
   return (
     <div style={{ height: '100%', overflowY: 'auto', padding: 12 }} className={`${P}-scrollbar`}>
@@ -218,7 +277,11 @@ export default function TabCharacter() {
       {/* ── 当前人物 ── */}
       <div className={`${P}-section-title`}>👤 当前人物</div>
       {char ? (
-        <div className={`${P}-card`} style={{ display: 'flex', gap: 14, marginBottom: 16, padding: 14 }}>
+        <div
+          className={`${P}-card`}
+          style={{ display: 'flex', gap: 14, marginBottom: 16, padding: 14, cursor: 'pointer' }}
+          onClick={() => setDossierCharId(currentCharacter)}
+        >
           <AssetBox src={char.portrait} size={100} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 2 }}>{char.name}</h3>
@@ -239,7 +302,7 @@ export default function TabCharacter() {
       {/* ── 人物关系图谱 ── */}
       <div className={`${P}-section-title`}>🔗 人物关系</div>
       <div className={`${P}-card`} style={{ padding: 8, marginBottom: 16 }}>
-        <RelationGraph />
+        <RelationGraph onNodeClick={handleCharClick} />
       </div>
 
       {/* ── 所有人物 ── */}
@@ -251,7 +314,7 @@ export default function TabCharacter() {
             <button
               key={id}
               className={`${P}-tag-btn ${isActive ? `${P}-tag-btn-active` : ''}`}
-              onClick={() => selectCharacter(id)}
+              onClick={() => handleCharClick(id)}
             >
               <SmallAvatar src={c.portrait} />
               <span>{c.name}</span>
@@ -259,6 +322,17 @@ export default function TabCharacter() {
           )
         })}
       </div>
+
+      {/* ── 全屏档案卡 ── */}
+      <AnimatePresence>
+        {dossierChar && (
+          <CharacterDossier
+            char={dossierChar}
+            stats={dossierStats}
+            onClose={() => setDossierCharId(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
