@@ -82,7 +82,16 @@ function FrontPage() {
   )
 }
 
-// ── 角色画廊（钉在笔记本的照片） ──────────────────────
+// ── 林承义的第一印象手记 ──────────────────────────────
+
+const CHAR_NOTES: Record<string, string> = {
+  liujinye: '眼神像鹰隼，铜烟锅从不离手。',
+  guansheng: '刀疤横脸，笑起来反而让人怕。',
+  qiaozhen: '她知道什么，但不肯说。',
+  zhaoxiucai: '满嘴之乎者也，眼珠子一直转。',
+  eerdun: '汉话说不利索，可每句都有分量。',
+  kuanggong: '两千双眼睛，没一双敢抬起来。',
+}
 
 function CharacterGallery({ onClose }: { onClose: () => void }) {
   const {
@@ -100,7 +109,7 @@ function CharacterGallery({ onClose }: { onClose: () => void }) {
   return (
     <div className={`${P}-dash-section`}>
       <div className={`${P}-dash-section-title`}>人物</div>
-      <div className={`${P}-dash-gallery`}>
+      <div className={`${P}-dash-char-grid`}>
         {Object.entries(characters).map(([id, char]) => {
           const isAvailable = id in available
           const isActive = id === currentCharacter
@@ -109,43 +118,68 @@ function CharacterGallery({ onClose }: { onClose: () => void }) {
           return (
             <button
               key={id}
-              className={`${P}-dash-photo ${isActive ? `${P}-dash-photo-active` : ''} ${!isAvailable ? `${P}-dash-photo-locked` : ''}`}
+              className={`${P}-dash-card ${isActive ? `${P}-dash-card-active` : ''} ${!isAvailable ? `${P}-dash-card-locked` : ''}`}
               onClick={() => isAvailable && handleClick(id)}
               disabled={!isAvailable}
             >
-              {/* 照片 */}
-              <div className={`${P}-dash-photo-img`}>
+              {/* 选中朱砂竖条 */}
+              {isActive && <div className={`${P}-dash-card-seal`} />}
+
+              {/* 照片区 */}
+              <div className={`${P}-dash-card-portrait`}>
                 {char.portrait.startsWith('/') ? (
                   <img src={char.portrait} alt={char.name} />
                 ) : (
-                  <span className={`${P}-dash-photo-emoji`}>{char.portrait}</span>
+                  <span className={`${P}-dash-card-emoji`}>{char.portrait}</span>
                 )}
-                {!isAvailable && <div className={`${P}-dash-photo-lock`}>🔒</div>}
-                {isActive && <div className={`${P}-dash-photo-mark`} />}
+                {/* 暗角做旧 */}
+                <div className={`${P}-dash-card-vignette`} />
+                {/* 渐变遮罩+名字叠加 */}
+                <div className={`${P}-dash-card-nameplate`}>
+                  <div className={`${P}-dash-card-name`}>
+                    {isAvailable ? char.name : '？？？'}
+                  </div>
+                  {isAvailable && (
+                    <div className={`${P}-dash-card-title`}>{char.title}</div>
+                  )}
+                </div>
+                {/* 锁定 */}
+                {!isAvailable && (
+                  <div className={`${P}-dash-card-lockscreen`}>
+                    <span className={`${P}-dash-card-question`}>？</span>
+                  </div>
+                )}
               </div>
 
-              {/* 手写批注 */}
-              <div className={`${P}-dash-photo-name`}>{isAvailable ? char.name : '???'}</div>
-
-              {/* 迷你数值（画"正"字风格的小点） */}
-              {isAvailable && char.statMetas.slice(0, 2).map((meta) => (
-                <div key={meta.key} className={`${P}-dash-photo-stat`}>
-                  <span>{meta.icon}</span>
-                  <div className={`${P}-dash-stat-pips`}>
-                    {Array.from({ length: 5 }, (_, i) => (
-                      <span
-                        key={i}
-                        className={`${P}-dash-pip`}
-                        style={{
-                          background: i < Math.ceil((stats[meta.key] ?? 0) / 20)
-                            ? meta.color : 'rgba(255,255,255,0.1)',
-                        }}
-                      />
-                    ))}
+              {/* 手写批注 + 数值 */}
+              {isAvailable && (
+                <div className={`${P}-dash-card-body`}>
+                  {/* 林承义的手记 */}
+                  <div className={`${P}-dash-card-note`}>
+                    "{CHAR_NOTES[id] ?? ''}"
                   </div>
-                  <span className={`${P}-dash-stat-val`}>{stats[meta.key] ?? 0}</span>
+
+                  {/* 数值竖条 */}
+                  {char.statMetas.slice(0, 2).map((meta) => {
+                    const val = stats[meta.key] ?? 0
+                    return (
+                      <div key={meta.key} className={`${P}-dash-card-stat`}>
+                        <span className={`${P}-dash-card-stat-icon`}>{meta.icon}</span>
+                        <div className={`${P}-dash-card-stat-track`}>
+                          <div
+                            className={`${P}-dash-card-stat-fill`}
+                            style={{ width: `${val}%`, background: meta.color }}
+                          />
+                        </div>
+                        <span className={`${P}-dash-card-stat-label`}>{meta.label}</span>
+                        <span className={`${P}-dash-card-stat-val`} style={{ color: meta.color }}>
+                          {val}
+                        </span>
+                      </div>
+                    )
+                  })}
                 </div>
-              ))}
+              )}
             </button>
           )
         })}
