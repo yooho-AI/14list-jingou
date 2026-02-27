@@ -35,10 +35,11 @@ function HandWrite({ text }: { text: string }) {
 
 function StartScreen() {
   const { initGame, loadGame, hasSave } = useGameStore()
-  const { isPlaying: musicOn, toggle: handleMusic } = useBgm()
+  const { toggle: handleMusic } = useBgm()
   const saved = hasSave()
   const [phase, setPhase] = useState<'letter' | 'crawl'>('letter')
   const [showMusicBar, setShowMusicBar] = useState(true)
+  const [musicEnabled, setMusicEnabled] = useState(true)
 
   const handleStart = useCallback(() => {
     trackGameStart()
@@ -114,7 +115,7 @@ function StartScreen() {
           >
             <div className={`${P}-music-bar-body`}>
               <svg className={`${P}-music-bar-icon`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                {musicOn ? (
+                {musicEnabled ? (
                   <>
                     <path d="M9 18V5l12-2v13" />
                     <circle cx="6" cy="18" r="3" fill="currentColor" />
@@ -130,13 +131,13 @@ function StartScreen() {
                 )}
               </svg>
               <span className={`${P}-music-bar-text`}>
-                {musicOn ? '正在播放背景音乐' : '背景音乐已关闭'}
+                {musicEnabled ? '正在播放背景音乐' : '背景音乐已关闭'}
               </span>
               <button
                 className={`${P}-music-bar-toggle`}
-                onClick={handleMusic}
+                onClick={(e) => { handleMusic(e); setMusicEnabled((v) => !v) }}
               >
-                {musicOn ? '关闭' : '开启'}
+                {musicEnabled ? '关闭' : '开启'}
               </button>
               <button
                 className={`${P}-music-bar-close`}
