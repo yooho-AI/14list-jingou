@@ -1080,35 +1080,156 @@ body {
   width: 100%;
 }
 
-/* ── 按钮 ── */
+/* ── 主按钮（游戏化） ── */
 .jg-start-btn {
+  position: relative;
   width: 100%;
-  padding: 16px;
-  background: transparent;
+  padding: 20px 24px;
+  background:
+    linear-gradient(180deg, rgba(139, 105, 20, 0.12) 0%, rgba(139, 105, 20, 0.04) 100%);
+  border: 1.5px solid rgba(var(--primary-rgb), 0.5);
   color: var(--primary);
-  border: 1px solid rgba(var(--primary-rgb), 0.4);
-  border-radius: 2px;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 6px;
   cursor: pointer;
-  transition: all 0.3s;
-  margin-bottom: 10px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  /* 外发光 */
+  box-shadow:
+    0 0 20px rgba(139, 105, 20, 0.08),
+    inset 0 1px 0 rgba(255, 215, 0, 0.06);
+}
+
+.jg-btn-label {
+  position: relative;
+  z-index: 2;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 8px;
+  font-family: 'KaiTi', 'STKaiti', serif;
+}
+
+/* 四角装饰 */
+.jg-btn-corner {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  z-index: 1;
+}
+.jg-btn-tl { top: 3px; left: 3px;  border-top: 2px solid var(--primary); border-left: 2px solid var(--primary); }
+.jg-btn-tr { top: 3px; right: 3px; border-top: 2px solid var(--primary); border-right: 2px solid var(--primary); }
+.jg-btn-bl { bottom: 3px; left: 3px;  border-bottom: 2px solid var(--primary); border-left: 2px solid var(--primary); }
+.jg-btn-br { bottom: 3px; right: 3px; border-bottom: 2px solid var(--primary); border-right: 2px solid var(--primary); }
+
+/* 微光扫过 */
+.jg-btn-shimmer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 215, 0, 0.06) 50%, transparent 60%);
+  animation: jgShimmer 4s ease-in-out infinite;
+}
+
+@keyframes jgShimmer {
+  0%, 100% { transform: translateX(-120%); }
+  50% { transform: translateX(120%); }
 }
 
 .jg-start-btn:active {
-  background: rgba(var(--primary-rgb), 0.1);
+  background: linear-gradient(180deg, rgba(139, 105, 20, 0.2) 0%, rgba(139, 105, 20, 0.08) 100%);
+  box-shadow: 0 0 28px rgba(139, 105, 20, 0.15), inset 0 1px 0 rgba(255, 215, 0, 0.1);
 }
 
+/* ── 继续按钮 ── */
 .jg-continue-btn {
   width: 100%;
-  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
   background: transparent;
+  border: 1px solid rgba(var(--primary-rgb), 0.18);
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  letter-spacing: 3px;
+  font-family: 'KaiTi', 'STKaiti', serif;
+  transition: all 0.2s;
+}
+
+.jg-continue-icon {
+  font-size: 16px;
+}
+
+.jg-continue-btn:active {
+  background: rgba(var(--primary-rgb), 0.06);
+  border-color: rgba(var(--primary-rgb), 0.3);
+  color: var(--text-primary);
+}
+
+/* ── 音乐提示栏（底部固定） ── */
+.jg-music-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 0 16px 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.jg-music-bar-body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba(26, 22, 14, 0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(139, 105, 20, 0.25);
+  border-radius: 10px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.jg-music-bar-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.jg-music-bar-text {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-family: 'KaiTi', 'STKaiti', serif;
+  letter-spacing: 1px;
+}
+
+.jg-music-bar-toggle {
+  padding: 6px 14px;
+  background: var(--primary);
+  border: none;
+  border-radius: 6px;
+  color: #1a1610;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.jg-music-bar-toggle:active {
+  transform: scale(0.95);
+}
+
+.jg-music-bar-close {
+  background: none;
   border: none;
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
-  letter-spacing: 2px;
+  padding: 4px;
+  flex-shrink: 0;
 }
 
 /* ── 菜单 ──────────────────────────────────────────── */

@@ -38,6 +38,7 @@ function StartScreen() {
   const { isPlaying: musicOn, toggle: handleMusic } = useBgm()
   const saved = hasSave()
   const [phase, setPhase] = useState<'letter' | 'crawl'>('letter')
+  const [showMusicBar, setShowMusicBar] = useState(true)
 
   const handleStart = useCallback(() => {
     trackGameStart()
@@ -83,17 +84,50 @@ function StartScreen() {
               transition={{ delay: 1.5, duration: 0.6 }}
             >
               <button className={`${P}-start-btn`} onClick={handleStart}>
-                ⛏️ 开始调查
+                <span className={`${P}-btn-corner ${P}-btn-tl`} />
+                <span className={`${P}-btn-corner ${P}-btn-tr`} />
+                <span className={`${P}-btn-corner ${P}-btn-bl`} />
+                <span className={`${P}-btn-corner ${P}-btn-br`} />
+                <span className={`${P}-btn-shimmer`} />
+                <span className={`${P}-btn-label`}>⛏️ 开始调查</span>
               </button>
               {saved && (
                 <button className={`${P}-continue-btn`} onClick={handleContinue}>
-                  📖 继续上次
+                  <span className={`${P}-continue-icon`}>📖</span>
+                  <span>继续上次调查</span>
                 </button>
               )}
-              <button className={`${P}-icon-btn`} onClick={handleMusic} style={{ marginTop: 8 }}>
-                {musicOn ? '🔊' : '🔇'}
-              </button>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── 音乐提示栏（底部固定） ── */}
+      <AnimatePresence>
+        {phase === 'letter' && showMusicBar && (
+          <motion.div
+            className={`${P}-music-bar`}
+            initial={{ y: 60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 60, opacity: 0 }}
+            transition={{ delay: 2, duration: 0.5 }}
+          >
+            <div className={`${P}-music-bar-body`}>
+              <span className={`${P}-music-bar-icon`}>🎵</span>
+              <span className={`${P}-music-bar-text`}>开启音乐以获得沉浸体验</span>
+              <button
+                className={`${P}-music-bar-toggle`}
+                onClick={handleMusic}
+              >
+                {musicOn ? '已开启' : '点击开启'}
+              </button>
+              <button
+                className={`${P}-music-bar-close`}
+                onClick={() => setShowMusicBar(false)}
+              >
+                ✕
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
