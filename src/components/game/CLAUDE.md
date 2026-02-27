@@ -3,7 +3,8 @@ L2 | 父级: 14list-jingou/CLAUDE.md
 
 ## 成员清单
 
-- `app-shell.tsx`: 游戏主壳——Header(时间/线索/MusicPlayer唱片播放器/菜单) + Tab路由(AnimatePresence) + TabBar(3项) + RecordSheet
+- `app-shell.tsx`: 游戏主壳——Header(📓笔记本按钮/时间/线索/MusicPlayer/菜单/📜记录) + Tab路由(AnimatePresence) + TabBar(3项) + DashboardDrawer(左滑) + RecordSheet(右滑)
+- `dashboard-drawer.tsx`: 调查笔记本——左侧滑入抽屉，6组件：TimeTag/CharacterGallery/SceneMap/Objectives/EvidenceBoard/CaseBoard。林承义私人笔记本风格(旧皮革+泛黄宣纸+朱砂红+楷体)
 - `tab-dialogue.tsx`: 对话Tab——ChatArea(LetterCard/MessageBubble/StreamingBubble/SceneTransitionCard/ClueCard/DayCard) + QuickActions(2x2) + InputArea + InventorySheet
 - `tab-scene.tsx`: 场景Tab——SceneHeroCard(9:16大图) + 相关人物tags + 地点列表(锁定/解锁/当前态)
 - `tab-character.tsx`: 人物Tab——PortraitHero(9:16立绘) + StatGroups + RelationGraph + CharacterGrid + CharacterDossier全屏档案卡
@@ -17,6 +18,7 @@ L2 | 父级: 14list-jingou/CLAUDE.md
 | ClueCard | tab-dialogue.tsx | 虚线框+去模糊+线索进度条+计数器跳动 |
 | DayCard | tab-dialogue.tsx | 日历纸飘落+红色撕痕+楷体大字+打字机逐字 |
 | MusicPlayer | app-shell.tsx | 唱片旋转+迷你面板(曲名+波形+暂停) |
+| DashboardDrawer | dashboard-drawer.tsx | 左侧滑入笔记本：旧皮革底+泛黄纸+朱砂红标注+照片做旧+红线悬案 |
 
 ## 架构决策
 

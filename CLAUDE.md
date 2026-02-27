@@ -15,10 +15,10 @@ React 19 + Zustand 5 + Immer + Vite 7 + Tailwind CSS v4 + Framer Motion
 │   └── scenes/               - 7 场景背景 9:16 竖版 + crawl-bg.mp4
 ├── src/
 │   ├── main.tsx              - ☆ 零修改：React 入口
-│   ├── App.tsx               - 根组件：开场/游戏二态 + EndingModal + MenuOverlay
+│   ├── App.tsx               - 根组件：开场(信纸+按钮→字幕→游戏)/游戏二态 + EndingModal + MenuOverlay
 │   ├── lib/                  - 核心逻辑层 (8 文件)
-│   ├── styles/globals.css    - 全局样式，jg- 前缀，暗金冷峻主题 + 5组件富UI样式
-│   └── components/game/      - 游戏组件层 (4 文件)
+│   ├── styles/globals.css    - 全局样式，jg- 前缀，暗金冷峻主题 + 6组件富UI样式 + 调查笔记本
+│   └── components/game/      - 游戏组件层 (5 文件)
 ├── index.html                - ⛏️ favicon
 ├── package.json              - name: jingou
 ├── wrangler.toml             - ☆ 备用
@@ -37,10 +37,11 @@ React 19 + Zustand 5 + Immer + Vite 7 + Tailwind CSS v4 + Framer Motion
 
 ## 富UI组件系统
 
-5 个 SillyTavern 风格的精致组件，嵌入对话流和 Tab 交互：
+6 个 SillyTavern 风格的精致组件，嵌入对话流和 Tab 交互：
 
 | 组件 | 位置 | 触发 | 视觉风格 |
 |------|------|------|----------|
+| DashboardDrawer | app-shell | Header📓按钮 | 左侧滑入调查笔记本(旧皮革+宣纸+朱砂红+照片做旧+红线悬案) |
 | CharacterDossier | tab-character | 点击角色 | 全屏卷宗档案卡，密印+立绘+数值条+性格 |
 | SceneTransitionCard | tab-dialogue | selectScene | 场景大图+Ken Burns+电影字幕卡 |
 | ClueCard | tab-dialogue | 线索+1 | 虚线框+去模糊动画+进度条 |

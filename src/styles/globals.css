@@ -1867,3 +1867,625 @@ body {
   background: var(--primary-light);
   color: var(--primary);
 }
+
+/* ================================================================
+ * 调查笔记本 Dashboard Drawer
+ * 林承义私人笔记本——旧皮革+泛黄宣纸+朱砂红标注+楷体手写
+ * ================================================================ */
+
+/* ── Drawer 遮罩与容器 ─────────────────────────────── */
+
+.jg-dash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.jg-dash-drawer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 85vw;
+  max-width: 380px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  /* 深褐旧皮革底色 */
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent, transparent 120px,
+      rgba(139, 105, 20, 0.03) 120px, rgba(139, 105, 20, 0.03) 121px
+    ),
+    linear-gradient(180deg, #1a1510 0%, #151008 100%);
+  border-right: 1px solid rgba(139, 105, 20, 0.25);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.6);
+}
+
+/* ── 笔记本封面 ────────────────────────────────────── */
+
+.jg-dash-header {
+  padding: 20px 16px 14px;
+  border-bottom: 1px solid rgba(139, 105, 20, 0.2);
+  position: relative;
+  /* 皮革纹理暗纹 */
+  background:
+    radial-gradient(ellipse at 30% 50%, rgba(139, 105, 20, 0.06) 0%, transparent 70%);
+}
+
+.jg-dash-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #d4cbb8;
+  font-family: 'KaiTi', 'STKaiti', 'AR PL UKai CN', serif;
+  letter-spacing: 4px;
+}
+
+.jg-dash-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  letter-spacing: 2px;
+  font-style: italic;
+}
+
+.jg-dash-close {
+  position: absolute;
+  top: 16px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.jg-dash-close:active {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* ── 滚动区域 ──────────────────────────────────────── */
+
+.jg-dash-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 14px 24px;
+}
+
+/* ── Section 通用 ──────────────────────────────────── */
+
+.jg-dash-section {
+  margin-top: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px dashed rgba(139, 105, 20, 0.15);
+}
+
+.jg-dash-section:last-child {
+  border-bottom: none;
+}
+
+.jg-dash-section-title {
+  font-size: 11px;
+  color: #8b2500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 12px;
+  padding-left: 2px;
+  /* 朱砂红标注线 */
+  border-left: 2px solid #8b2500;
+  padding-left: 8px;
+}
+
+/* ── 时间标签 ──────────────────────────────────────── */
+
+.jg-dash-time {
+  margin-top: 16px;
+  padding: 12px 14px;
+  background: rgba(212, 203, 184, 0.04);
+  border: 1px solid rgba(139, 105, 20, 0.15);
+  border-radius: 8px;
+}
+
+.jg-dash-time-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.jg-dash-time-icon {
+  font-size: 18px;
+}
+
+.jg-dash-time-date {
+  font-size: 15px;
+  color: #d4cbb8;
+  font-weight: 600;
+  font-family: 'KaiTi', 'STKaiti', serif;
+}
+
+.jg-dash-time-chapter {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.jg-dash-time-ap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.jg-dash-ap-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(139, 105, 20, 0.3);
+  transition: background 0.3s;
+}
+
+.jg-dash-ap-filled {
+  background: #8B6914;
+  border-color: #8B6914;
+}
+
+.jg-dash-ap-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+/* ── 角色画廊（照片钉在笔记本） ────────────────────── */
+
+.jg-dash-gallery {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scroll-snap-type: x mandatory;
+}
+
+.jg-dash-gallery::-webkit-scrollbar {
+  height: 2px;
+}
+
+.jg-dash-gallery::-webkit-scrollbar-thumb {
+  background: rgba(139, 105, 20, 0.3);
+  border-radius: 1px;
+}
+
+.jg-dash-photo {
+  flex-shrink: 0;
+  width: 110px;
+  scroll-snap-align: start;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.2s;
+}
+
+.jg-dash-photo:active {
+  transform: scale(0.97);
+}
+
+.jg-dash-photo-locked {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* 照片区域 */
+.jg-dash-photo-img {
+  width: 110px;
+  height: 148px;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  /* 旧照片纹理 */
+  border: 1px solid rgba(139, 105, 20, 0.2);
+  box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.5);
+}
+
+.jg-dash-photo-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* 旧照片做旧 */
+  filter: sepia(0.2) contrast(1.05) brightness(0.9);
+}
+
+.jg-dash-photo-emoji {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  background: var(--bg-hover);
+}
+
+.jg-dash-photo-lock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* 红色竖条选中标记 */
+.jg-dash-photo-active .jg-dash-photo-img {
+  border-color: #8b2500;
+  box-shadow: 0 0 12px rgba(139, 37, 0, 0.4);
+}
+
+.jg-dash-photo-mark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: #8b2500;
+}
+
+/* 手写批注名字 */
+.jg-dash-photo-name {
+  font-size: 12px;
+  color: #d4cbb8;
+  margin-top: 6px;
+  font-family: 'KaiTi', 'STKaiti', serif;
+  padding-left: 2px;
+}
+
+/* 迷你数值 */
+.jg-dash-photo-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+  font-size: 10px;
+  padding-left: 2px;
+}
+
+.jg-dash-stat-pips {
+  display: flex;
+  gap: 2px;
+}
+
+.jg-dash-pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  transition: background 0.3s;
+}
+
+.jg-dash-stat-val {
+  color: var(--text-muted);
+  font-size: 9px;
+  min-width: 14px;
+}
+
+/* ── 场景地图 ──────────────────────────────────────── */
+
+.jg-dash-scene-hero {
+  position: relative;
+  height: 140px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  border: 1px solid rgba(139, 105, 20, 0.2);
+}
+
+.jg-dash-scene-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.7) contrast(1.1);
+}
+
+.jg-dash-scene-emoji {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  background: var(--bg-hover);
+}
+
+.jg-dash-scene-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px 12px 10px;
+  background: linear-gradient(transparent, rgba(10, 10, 8, 0.9));
+}
+
+.jg-dash-scene-name {
+  font-size: 15px;
+  color: #d4cbb8;
+  font-weight: 600;
+  font-family: 'KaiTi', 'STKaiti', serif;
+}
+
+.jg-dash-scene-atmo {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.jg-dash-scene-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.jg-dash-scene-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(139, 105, 20, 0.2);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.jg-dash-scene-tag:active {
+  background: var(--bg-hover);
+}
+
+.jg-dash-scene-tag-active {
+  border-color: rgba(139, 105, 20, 0.5);
+  background: rgba(139, 105, 20, 0.08);
+  color: #d4cbb8;
+}
+
+.jg-dash-scene-tag-locked {
+  opacity: 0.3;
+  cursor: default;
+  border-style: dotted;
+}
+
+.jg-dash-scene-dot {
+  position: absolute;
+  right: 8px;
+  color: #8b2500;
+  font-size: 8px;
+}
+
+/* ── 章节目标 ──────────────────────────────────────── */
+
+.jg-dash-chapter-badge {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  font-family: 'KaiTi', 'STKaiti', serif;
+}
+
+.jg-dash-objectives {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.jg-dash-obj-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-family: 'KaiTi', 'STKaiti', serif;
+}
+
+.jg-dash-obj-circle {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(139, 105, 20, 0.4);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+/* 线索进度 12圆 */
+.jg-dash-clue-track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: rgba(139, 37, 0, 0.05);
+  border: 1px solid rgba(139, 37, 0, 0.15);
+  border-radius: 6px;
+}
+
+.jg-dash-clue-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.jg-dash-clue-dots {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.jg-dash-clue-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(139, 37, 0, 0.3);
+  transition: all 0.3s;
+}
+
+.jg-dash-clue-found {
+  background: #8b2500;
+  border-color: #8b2500;
+  box-shadow: 0 0 4px rgba(139, 37, 0, 0.5);
+}
+
+.jg-dash-clue-count {
+  font-size: 11px;
+  color: #8b2500;
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* ── 证据板 ────────────────────────────────────────── */
+
+.jg-dash-empty {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 12px 0;
+  font-family: 'KaiTi', 'STKaiti', serif;
+}
+
+.jg-dash-evidence-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jg-dash-evidence-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  /* 泛黄纸片夹页感 */
+  background: rgba(212, 203, 184, 0.04);
+  border: 1px solid rgba(139, 105, 20, 0.15);
+  border-radius: 4px;
+  /* 微微歪斜 */
+  transform: rotate(-0.3deg);
+  position: relative;
+}
+
+.jg-dash-evidence-card:nth-child(even) {
+  transform: rotate(0.5deg);
+}
+
+/* 胶带效果 */
+.jg-dash-evidence-card::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 20px;
+  width: 30px;
+  height: 8px;
+  background: rgba(139, 105, 20, 0.2);
+  border-radius: 1px;
+  transform: rotate(-2deg);
+}
+
+.jg-dash-evidence-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.jg-dash-evidence-info {
+  min-width: 0;
+}
+
+.jg-dash-evidence-name {
+  font-size: 13px;
+  color: #d4cbb8;
+  font-weight: 600;
+  font-family: 'KaiTi', 'STKaiti', serif;
+}
+
+.jg-dash-evidence-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  line-height: 1.5;
+}
+
+/* ── 悬案板 ────────────────────────────────────────── */
+
+.jg-dash-case-board {
+  display: flex;
+  gap: 10px;
+  position: relative;
+  padding: 4px 0;
+}
+
+.jg-dash-case-card {
+  flex: 1;
+  padding: 12px 10px;
+  background: rgba(139, 37, 0, 0.04);
+  border: 1px solid rgba(139, 37, 0, 0.2);
+  border-radius: 6px;
+  position: relative;
+}
+
+.jg-dash-case-name {
+  font-size: 14px;
+  color: #d4cbb8;
+  font-weight: 700;
+  font-family: 'KaiTi', 'STKaiti', serif;
+}
+
+.jg-dash-case-status {
+  font-size: 10px;
+  color: #8b2500;
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+.jg-dash-case-detail {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  line-height: 1.5;
+  font-family: 'KaiTi', 'STKaiti', serif;
+}
+
+/* 红线连接 SVG */
+.jg-dash-case-line {
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  width: 80%;
+  height: 10px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.jg-dash-case-note {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 12px;
+  font-family: 'KaiTi', 'STKaiti', serif;
+  font-style: italic;
+  text-align: center;
+  opacity: 0.6;
+}
+
+/* ── Header 笔记本按钮 ────────────────────────────── */
+
+.jg-dash-btn {
+  font-size: 18px !important;
+}

@@ -37,30 +37,26 @@ function StartScreen() {
   const { initGame, loadGame, hasSave } = useGameStore()
   const { isPlaying: musicOn, toggle: handleMusic } = useBgm()
   const saved = hasSave()
-  const [phase, setPhase] = useState<'letter' | 'crawl' | 'ready'>('letter')
-
-  // 信展示 2.5s 后自动进入字幕
-  useEffect(() => {
-    if (phase === 'letter') {
-      const t = setTimeout(() => setPhase('crawl'), 2500)
-      return () => clearTimeout(t)
-    }
-  }, [phase])
+  const [phase, setPhase] = useState<'letter' | 'crawl'>('letter')
 
   const handleStart = useCallback(() => {
     trackGameStart()
-    initGame()
-  }, [initGame])
+    setPhase('crawl')
+  }, [])
 
   const handleContinue = useCallback(() => {
     trackGameContinue()
     loadGame()
   }, [loadGame])
 
+  const handleCrawlEnd = useCallback(() => {
+    initGame()
+  }, [initGame])
+
   return (
     <div className={`${P}-start`}>
 
-      {/* ── 第一幕：信 ── */}
+      {/* ── 第一幕：信 + 开始/继续 ── */}
       <AnimatePresence>
         {phase === 'letter' && (
           <motion.div
@@ -78,6 +74,26 @@ function StartScreen() {
               </div>
               <p className={`${P}-letter-sign`}><HandWrite text="陈大哥" /></p>
             </div>
+
+            {/* CTA 按钮 */}
+            <motion.div
+              className={`${P}-start-cta`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.5, duration: 0.6 }}
+            >
+              <button className={`${P}-start-btn`} onClick={handleStart}>
+                ⛏️ 开始调查
+              </button>
+              {saved && (
+                <button className={`${P}-continue-btn`} onClick={handleContinue}>
+                  📖 继续上次
+                </button>
+              )}
+              <button className={`${P}-icon-btn`} onClick={handleMusic} style={{ marginTop: 8 }}>
+                {musicOn ? '🔊' : '🔇'}
+              </button>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -100,7 +116,7 @@ function StartScreen() {
             <div className={`${P}-crawl-frost`} />
             <div
               className={`${P}-crawl`}
-              onAnimationEnd={() => setPhase('ready')}
+              onAnimationEnd={handleCrawlEnd}
             >
               <p className={`${P}-crawl-era`}>光绪三十二年</p>
 
@@ -169,7 +185,7 @@ function StartScreen() {
         {phase === 'crawl' && (
           <motion.button
             className={`${P}-skip-btn`}
-            onClick={() => setPhase('ready')}
+            onClick={handleCrawlEnd}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -177,37 +193,6 @@ function StartScreen() {
           >
             跳过 ›
           </motion.button>
-        )}
-      </AnimatePresence>
-
-      {/* ── 第三幕：标题 + CTA ── */}
-      <AnimatePresence>
-        {phase === 'ready' && (
-          <motion.div
-            className={`${P}-ready-scene`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-          >
-            <h1 className={`${P}-title`}>金沟</h1>
-            <p className={`${P}-subtitle`}>白山黑水 · 卷一</p>
-            <p className={`${P}-start-meta`}>5种结局 · AI驱动叙事</p>
-
-            <button className={`${P}-icon-btn`} onClick={handleMusic} style={{ marginTop: 12 }}>
-              {musicOn ? '🔊' : '🔇'}
-            </button>
-
-            <div className={`${P}-start-cta`}>
-              <button className={`${P}-start-btn`} onClick={handleStart}>
-                ⛏️ 开始调查
-              </button>
-              {saved && (
-                <button className={`${P}-continue-btn`} onClick={handleContinue}>
-                  📖 继续上次
-                </button>
-              )}
-            </div>
-          </motion.div>
         )}
       </AnimatePresence>
     </div>

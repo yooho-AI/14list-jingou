@@ -45,6 +45,7 @@ interface GameState {
 
   endingType: string | null
   activeTab: 'dialogue' | 'scene' | 'character'
+  showDashboard: boolean
   storyRecords: Array<{ id: string; day: number; period: string; title: string; content: string }>
   showRecords: boolean
 }
@@ -55,6 +56,7 @@ interface GameActions {
   selectCharacter: (charId: string) => void
   selectScene: (sceneId: string) => void
   setActiveTab: (tab: 'dialogue' | 'scene' | 'character') => void
+  toggleDashboard: () => void
   addStoryRecord: (title: string, content: string) => void
   toggleRecords: () => void
   sendMessage: (text: string) => Promise<void>
@@ -217,6 +219,7 @@ export const useGameStore = create<GameStore>()(
 
     endingType: null,
     activeTab: 'dialogue' as const,
+    showDashboard: false,
     storyRecords: [],
     showRecords: false,
 
@@ -239,10 +242,6 @@ export const useGameStore = create<GameStore>()(
         s.characterStats = characterStats
       })
       get().addStoryRecord('抵达金沟', '你带着陈大哥的信，踏上了这片冰冷的矿区。寻找失踪搭档陈大哥的旅程开始了。')
-      // 自动发送第一条消息，触发 AI 开场叙述
-      setTimeout(() => {
-        get().sendMessage('我带着陈大哥的信，刚到老金沟。四下看看这是个什么地方。')
-      }, 300)
     },
 
     selectCharacter: (charId: string) => {
@@ -276,6 +275,10 @@ export const useGameStore = create<GameStore>()(
 
     setActiveTab: (tab) => {
       set((s) => { s.activeTab = tab })
+    },
+
+    toggleDashboard: () => {
+      set((s) => { s.showDashboard = !s.showDashboard })
     },
 
     addStoryRecord: (title: string, content: string) => {
@@ -520,6 +523,7 @@ export const useGameStore = create<GameStore>()(
         s.streamingContent = ''
         s.endingType = null
         s.activeTab = 'dialogue'
+        s.showDashboard = false
         s.storyRecords = []
         s.showRecords = false
       })

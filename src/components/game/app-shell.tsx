@@ -1,7 +1,7 @@
 /**
- * [INPUT]: 依赖 store.ts 的 activeTab/setActiveTab/currentDay/currentPeriodIndex/cluesFound/storyRecords/showRecords/toggleRecords, bgm.ts, framer-motion
+ * [INPUT]: 依赖 store.ts 的 activeTab/setActiveTab/currentDay/currentPeriodIndex/cluesFound/storyRecords/showRecords/toggleRecords/showDashboard/toggleDashboard, bgm.ts, framer-motion
  * [OUTPUT]: 对外提供 AppShell 组件 + MusicPlayer 唱片播放器
- * [POS]: 游戏主壳，Header(MusicPlayer) + Tab 路由 + TabBar + RecordSheet。被 App.tsx 唯一消费
+ * [POS]: 游戏主壳，Header(MusicPlayer+笔记本按钮) + Tab 路由 + TabBar + RecordSheet + DashboardDrawer。被 App.tsx 唯一消费
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
@@ -12,6 +12,7 @@ import { useBgm } from '../../lib/bgm'
 import TabDialogue from './tab-dialogue'
 import TabScene from './tab-scene'
 import TabCharacter from './tab-character'
+import DashboardDrawer from './dashboard-drawer'
 
 const P = 'jg'
 
@@ -122,6 +123,7 @@ export default function AppShell({ onMenuOpen }: { onMenuOpen: () => void }) {
     activeTab, setActiveTab,
     currentDay, currentPeriodIndex, cluesFound,
     showRecords, toggleRecords,
+    showDashboard, toggleDashboard,
   } = useGameStore()
 
   const period = PERIODS[currentPeriodIndex]
@@ -132,7 +134,9 @@ export default function AppShell({ onMenuOpen }: { onMenuOpen: () => void }) {
       {/* ── Header ── */}
       <header className={`${P}-header`}>
         <div className={`${P}-header-left`}>
-          <span>{period.icon}</span>
+          <button className={`${P}-icon-btn ${P}-dash-btn`} onClick={toggleDashboard}>
+            📓
+          </button>
           <span>第{currentDay}天 · {period.name}</span>
         </div>
         <div className={`${P}-header-center`}>
@@ -186,7 +190,12 @@ export default function AppShell({ onMenuOpen }: { onMenuOpen: () => void }) {
         ))}
       </nav>
 
-      {/* ── 记录面板 ── */}
+      {/* ── 调查笔记本（左侧滑入） ── */}
+      <AnimatePresence>
+        {showDashboard && <DashboardDrawer onClose={toggleDashboard} />}
+      </AnimatePresence>
+
+      {/* ── 记录面板（右侧滑入） ── */}
       <AnimatePresence>
         {showRecords && <RecordSheet onClose={toggleRecords} />}
       </AnimatePresence>
