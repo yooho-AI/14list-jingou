@@ -2211,87 +2211,88 @@ body {
   box-shadow: 0 0 6px rgba(139, 105, 20, 0.4);
 }
 
-/* ── 舆图（平面图 3×3 grid） ─────────────────────────── */
+/* ── 舆图（建筑平面图风格） ─────────────────────────── */
 
 .jg-dash-plan {
   position: relative;
-  width: 100%;
-  border-radius: 6px;
-  overflow: hidden;
+  padding: 22px 10px 10px;
+  /* 网格线底纹 + 暗色背景 */
   background:
-    radial-gradient(ellipse at 30% 40%, rgba(180, 160, 110, 0.08) 0%, transparent 60%),
-    linear-gradient(170deg, #1e1a12 0%, #16120a 100%);
-  border: 1px solid rgba(139, 105, 20, 0.25);
-  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3);
-  padding: 10px;
+    repeating-linear-gradient(0deg,
+      rgba(139, 105, 20, 0.05) 0px, rgba(139, 105, 20, 0.05) 1px,
+      transparent 1px, transparent 32px),
+    repeating-linear-gradient(90deg,
+      rgba(139, 105, 20, 0.05) 0px, rgba(139, 105, 20, 0.05) 1px,
+      transparent 1px, transparent 32px),
+    #0c0a06;
+  border: 1px solid rgba(139, 105, 20, 0.35);
 }
 
-/* SVG 连线（绝对覆盖） */
-.jg-dash-plan-svg {
+/* 方位标注（四边） */
+.jg-plan-edge {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  font-size: 9px;
+  color: rgba(139, 105, 20, 0.28);
+  font-family: 'KaiTi', 'STKaiti', serif;
+  letter-spacing: 3px;
   pointer-events: none;
-  z-index: 0;
+  z-index: 2;
+  white-space: nowrap;
 }
 
-/* 3×3 网格 */
+.jg-plan-edge-t { top: 4px; left: 50%; transform: translateX(-50%); }
+.jg-plan-edge-b { bottom: 2px; left: 50%; transform: translateX(-50%); }
+.jg-plan-edge-l { left: 1px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+.jg-plan-edge-r { right: 1px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+
+/* 3×3 房间网格 — gap 即"走廊" */
 .jg-dash-plan-grid {
-  position: relative;
-  z-index: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  gap: 2px;
+  background: rgba(139, 105, 20, 0.12);
 }
 
-.jg-dash-plan-empty {
-  aspect-ratio: 1;
+.jg-dash-plan-void {
+  background: #0c0a06;
 }
 
+/* 房间格 */
 .jg-dash-plan-cell {
   position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
   aspect-ratio: 1;
-  background: rgba(26, 21, 16, 0.75);
-  border: 1px solid rgba(139, 105, 20, 0.3);
-  border-radius: 6px;
+  background: rgba(18, 16, 10, 0.95);
+  border: none;
+  border-radius: 0;
   cursor: pointer;
-  transition: all 0.2s;
   padding: 4px;
+  transition: background 0.15s;
 }
 
 .jg-dash-plan-cell:active {
-  background: rgba(139, 105, 20, 0.15);
-}
-
-.jg-dash-plan-icon {
-  font-size: 18px;
-  line-height: 1;
+  background: rgba(139, 105, 20, 0.1);
 }
 
 .jg-dash-plan-name {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--text-secondary);
   font-family: 'KaiTi', 'STKaiti', serif;
-  letter-spacing: 1px;
-  white-space: nowrap;
+  letter-spacing: 2px;
   text-align: center;
+  line-height: 1.4;
 }
 
-/* 当前位置 */
+/* 当前位置 — 暗红填充 + 内边框 */
 .jg-dash-plan-cur {
-  border-color: #8b2500;
-  background: rgba(139, 37, 0, 0.12);
-  box-shadow: 0 0 12px rgba(139, 37, 0, 0.3);
+  background: rgba(139, 37, 0, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(180, 50, 20, 0.55);
 }
 
 .jg-dash-plan-cur .jg-dash-plan-name {
-  color: #d4cbb8;
+  color: #e8e0d0;
   font-weight: 600;
 }
 
@@ -2299,100 +2300,124 @@ body {
 .jg-dash-plan-lock {
   opacity: 0.3;
   cursor: default;
-  border-style: dashed;
 }
 
-.jg-dash-plan-lock .jg-dash-plan-icon {
-  font-family: 'KaiTi', 'STKaiti', serif;
-  font-size: 14px;
-  color: var(--text-muted);
-}
-
-/* 当前位置脉冲 */
-.jg-dash-plan-ping {
+/* 红色定位点 */
+.jg-dash-plan-dot {
   position: absolute;
-  top: -2px;
-  right: -2px;
+  top: 5px;
+  right: 5px;
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #8b2500;
-  animation: jgPlanPing 1.5s ease-out infinite;
+  background: #c0392b;
+  box-shadow: 0 0 4px rgba(192, 57, 43, 0.8);
+  animation: jgPlanPing 1.8s ease-out infinite;
 }
 
 @keyframes jgPlanPing {
-  0% { box-shadow: 0 0 0 0 rgba(139, 37, 0, 0.6); }
-  70% { box-shadow: 0 0 0 8px rgba(139, 37, 0, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(139, 37, 0, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.6); }
+  70% { box-shadow: 0 0 0 6px rgba(192, 57, 43, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); }
 }
 
-/* ── 笔记本音乐播放器 ────────────────────────────────── */
+/* ── 笔记本音乐播放器（唱片风格） ─────────────────── */
 
 .jg-dash-music {
-  padding: 14px;
-  background:
-    radial-gradient(ellipse at 50% 50%, rgba(139, 105, 20, 0.06) 0%, transparent 70%),
-    rgba(26, 21, 16, 0.5);
-  border: 1px solid rgba(139, 105, 20, 0.2);
-  border-radius: 8px;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px 24px;
+  background: rgba(22, 18, 12, 0.6);
+  border: 1px solid rgba(139, 105, 20, 0.12);
+  border-radius: 12px;
 }
 
-.jg-dash-music-name {
-  font-size: 14px;
+/* 圆形唱片封面 */
+.jg-music-cover {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(139, 105, 20, 0.25);
+  margin-bottom: 18px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  flex-shrink: 0;
+}
+
+.jg-music-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.jg-music-spin {
+  animation: jgMusicSpin 12s linear infinite;
+}
+
+@keyframes jgMusicSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* 曲名 + 副标题 */
+.jg-music-name {
+  font-size: 18px;
   font-weight: 600;
   color: var(--text-primary);
   font-family: 'KaiTi', 'STKaiti', serif;
-  letter-spacing: 2px;
-  margin-bottom: 12px;
+  letter-spacing: 3px;
+  margin-bottom: 4px;
 }
 
-/* 波形可视化 10条 */
-.jg-dash-music-wave {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 3px;
-  height: 32px;
-  margin-bottom: 14px;
-}
-
-.jg-dash-music-bar {
-  width: 3px;
-  height: 4px;
-  background: var(--primary);
-  border-radius: 1.5px;
-  transition: height 0.1s;
-}
-
-.jg-dash-music-bar-on {
-  animation: jgMusicWave 0.5s ease-in-out infinite alternate;
-}
-
-@keyframes jgMusicWave {
-  from { height: 4px; }
-  to { height: 28px; }
-}
-
-.jg-dash-music-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 20px;
-  background: var(--bg-hover);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  color: var(--text-secondary);
+.jg-music-sub {
   font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: 'KaiTi', 'STKaiti', serif;
+  color: var(--primary);
   letter-spacing: 1px;
+  margin-bottom: 22px;
 }
 
-.jg-dash-music-btn:active {
-  background: var(--primary-light);
-  color: var(--primary);
+/* 控制按钮组 */
+.jg-music-controls {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* 上一曲/下一曲（装饰用） */
+.jg-music-side {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(139, 105, 20, 0.25);
+  background: transparent;
+  color: rgba(139, 105, 20, 0.35);
+  font-size: 14px;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 播放/暂停主按钮 */
+.jg-music-play {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: var(--primary);
+  color: #1a1610;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 14px rgba(139, 105, 20, 0.4);
+  transition: all 0.15s;
+}
+
+.jg-music-play:active {
+  transform: scale(0.93);
+  box-shadow: 0 1px 6px rgba(139, 105, 20, 0.3);
 }
 
 /* ── 章节目标 ──────────────────────────────────────── */

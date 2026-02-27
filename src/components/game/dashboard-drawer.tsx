@@ -54,27 +54,6 @@ const PLAN_LAYOUT: (string | null)[][] = [
   [null, 'deep', null],
 ]
 
-const GRID_CENTER: Record<string, [number, number]> = {
-  forest: [17, 17], mine: [50, 17], boss: [83, 17],
-  bandit: [17, 50], camp: [50, 50], study: [83, 50],
-  deep: [50, 83],
-}
-
-const PLAN_LINKS: [string, string][] = [
-  ['camp', 'mine'], ['camp', 'boss'], ['camp', 'forest'],
-  ['camp', 'study'], ['mine', 'deep'], ['forest', 'bandit'],
-  ['boss', 'study'],
-]
-
-// ── 音乐波形参数（固定数组避免 re-render 抖动） ──
-
-const WAVE_BARS = [
-  { d: 0, t: 0.45 }, { d: 0.08, t: 0.55 }, { d: 0.16, t: 0.5 },
-  { d: 0.06, t: 0.6 }, { d: 0.2, t: 0.42 }, { d: 0.12, t: 0.58 },
-  { d: 0.04, t: 0.48 }, { d: 0.22, t: 0.52 }, { d: 0.1, t: 0.44 },
-  { d: 0.18, t: 0.56 },
-]
-
 // ── 笔记本扉页 ───────────────────────────────────────
 
 function FrontPage() {
@@ -245,7 +224,7 @@ function CharacterGallery({ onClose }: { onClose: () => void }) {
   )
 }
 
-// ── 舆图（平面图 3×3 grid + SVG 连线） ──────────────
+// ── 舆图（建筑平面图风格） ───────────────────────────
 
 function SceneMap({ onClose }: { onClose: () => void }) {
   const { currentScene, unlockedScenes, selectScene } = useGameStore()
@@ -261,28 +240,16 @@ function SceneMap({ onClose }: { onClose: () => void }) {
       <div className={`${P}-dash-section-title`}>舆图</div>
 
       <div className={`${P}-dash-plan`}>
-        {/* SVG 连接线 */}
-        <svg className={`${P}-dash-plan-svg`} viewBox="0 0 100 100" preserveAspectRatio="none">
-          {PLAN_LINKS.map(([a, b]) => {
-            const pa = GRID_CENTER[a], pb = GRID_CENTER[b]
-            if (!pa || !pb) return null
-            const ok = unlockedScenes.includes(a) && unlockedScenes.includes(b)
-            return (
-              <line
-                key={`${a}-${b}`}
-                x1={pa[0]} y1={pa[1]} x2={pb[0]} y2={pb[1]}
-                stroke={ok ? 'rgba(139,105,20,0.4)' : 'rgba(139,105,20,0.12)'}
-                strokeWidth="0.6"
-                strokeDasharray="2 1.5"
-              />
-            )
-          })}
-        </svg>
+        {/* 方位标注 */}
+        <span className={`${P}-plan-edge ${P}-plan-edge-t`}>北 · 深山</span>
+        <span className={`${P}-plan-edge ${P}-plan-edge-l`}>林海</span>
+        <span className={`${P}-plan-edge ${P}-plan-edge-r`}>旱道</span>
+        <span className={`${P}-plan-edge ${P}-plan-edge-b`}>南 · 暗河</span>
 
-        {/* 3×3 格子 */}
+        {/* 3×3 房间格 */}
         <div className={`${P}-dash-plan-grid`}>
           {PLAN_LAYOUT.flat().map((sid, i) => {
-            if (!sid) return <div key={i} className={`${P}-dash-plan-empty`} />
+            if (!sid) return <div key={i} className={`${P}-dash-plan-void`} />
             const s = SCENES[sid]
             const isCurrent = sid === currentScene
             const isLocked = !unlockedScenes.includes(sid)
@@ -298,13 +265,10 @@ function SceneMap({ onClose }: { onClose: () => void }) {
                 onClick={() => handleClick(sid)}
                 disabled={isLocked}
               >
-                <span className={`${P}-dash-plan-icon`}>
-                  {isLocked ? '?' : s.icon}
-                </span>
                 <span className={`${P}-dash-plan-name`}>
                   {isLocked ? '未知' : s.name}
                 </span>
-                {isCurrent && <span className={`${P}-dash-plan-ping`} />}
+                {isCurrent && <span className={`${P}-dash-plan-dot`} />}
               </button>
             )
           })}
@@ -414,7 +378,7 @@ function CaseBoard() {
   )
 }
 
-// ── 氛围音乐播放器 ───────────────────────────────────
+// ── 氛围音乐播放器（唱片风格） ───────────────────────
 
 function MusicSection() {
   const { isPlaying, toggle } = useBgm()
@@ -423,22 +387,23 @@ function MusicSection() {
     <div className={`${P}-dash-section`}>
       <div className={`${P}-dash-section-title`}>氛围</div>
       <div className={`${P}-dash-music`}>
-        <div className={`${P}-dash-music-name`}>老金沟 · 雪夜</div>
-
-        {/* 波形可视化 */}
-        <div className={`${P}-dash-music-wave`}>
-          {WAVE_BARS.map((b, i) => (
-            <span
-              key={i}
-              className={`${P}-dash-music-bar ${isPlaying ? `${P}-dash-music-bar-on` : ''}`}
-              style={{ animationDelay: `${b.d}s`, animationDuration: `${b.t}s` }}
-            />
-          ))}
+        {/* 圆形唱片封面 */}
+        <div className={`${P}-music-cover ${isPlaying ? `${P}-music-spin` : ''}`}>
+          <img src="/scenes/mine.jpg" alt="" />
         </div>
 
-        <button className={`${P}-dash-music-btn`} onClick={(e) => toggle(e)}>
-          {isPlaying ? '⏸ 暂停' : '▶ 播放'}
-        </button>
+        {/* 曲名 */}
+        <div className={`${P}-music-name`}>雪夜长歌</div>
+        <div className={`${P}-music-sub`}>金沟 · 原声</div>
+
+        {/* 控制按钮 */}
+        <div className={`${P}-music-controls`}>
+          <button className={`${P}-music-side`} disabled>⏪</button>
+          <button className={`${P}-music-play`} onClick={(e) => toggle(e)}>
+            {isPlaying ? '⏸' : '▶'}
+          </button>
+          <button className={`${P}-music-side`} disabled>⏩</button>
+        </div>
       </div>
     </div>
   )
