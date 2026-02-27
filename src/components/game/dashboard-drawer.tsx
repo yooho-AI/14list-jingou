@@ -7,37 +7,77 @@
 
 import { motion } from 'framer-motion'
 import {
-  useGameStore, SCENES, ITEMS, PERIODS,
+  useGameStore, SCENES, ITEMS,
   getCurrentChapter, getAvailableCharacters,
 } from '../../lib/store'
 
 const P = 'jg'
 
-// ── 时间标签 ──────────────────────────────────────────
+// ── 农历日期映射（腊月十九起算，游戏第1天=腊月十九） ──
 
-function TimeTag() {
+const LUNAR_DATES = [
+  '', '腊月十九', '腊月二十', '腊月廿一', '腊月廿二', '腊月廿三',
+  '腊月廿四', '腊月廿五', '腊月廿六', '腊月廿七', '腊月廿八',
+  '腊月廿九', '腊月三十', '正月初一', '正月初二', '正月初三',
+  '正月初四', '正月初五', '正月初六', '正月初七', '正月初八',
+]
+
+// 时辰映射（对应 PERIODS 的 6 个时段）
+const SHICHEN = [
+  { name: '寅卯之交', alias: '黎明' },   // 04:00-07:00
+  { name: '巳时', alias: '上午' },        // 08:00-11:00
+  { name: '午时', alias: '午歇' },        // 12:00-13:00
+  { name: '未申之交', alias: '下午' },    // 14:00-17:00
+  { name: '酉时', alias: '黄昏' },        // 18:00-20:00
+  { name: '亥子之交', alias: '深夜' },    // 21:00-03:00
+]
+
+// ── 笔记本扉页 ───────────────────────────────────────
+
+function FrontPage() {
   const { currentDay, currentPeriodIndex, actionPoints } = useGameStore()
-  const period = PERIODS[currentPeriodIndex]
   const chapter = getCurrentChapter(currentDay)
+  const lunar = LUNAR_DATES[currentDay] ?? `第${currentDay}天`
+  const shichen = SHICHEN[currentPeriodIndex] ?? SHICHEN[0]
 
   return (
-    <div className={`${P}-dash-time`}>
-      <div className={`${P}-dash-time-top`}>
-        <span className={`${P}-dash-time-icon`}>{period.icon}</span>
-        <span className={`${P}-dash-time-date`}>第{currentDay}天 · {period.name}</span>
+    <div className={`${P}-dash-front`}>
+      {/* 农历大字 */}
+      <div className={`${P}-dash-front-date`}>{lunar}</div>
+
+      {/* 时辰 */}
+      <div className={`${P}-dash-front-shichen`}>
+        <span className={`${P}-dash-front-line`} />
+        <span>{shichen.name}</span>
+        <span className={`${P}-dash-front-alias`}>（{shichen.alias}）</span>
+        <span className={`${P}-dash-front-line`} />
       </div>
-      <div className={`${P}-dash-time-chapter`}>
+
+      {/* 章节 */}
+      <div className={`${P}-dash-front-chapter`}>
         第{chapter.id}幕「{chapter.name}」
       </div>
-      <div className={`${P}-dash-time-ap`}>
-        {Array.from({ length: 6 }, (_, i) => (
-          <span
-            key={i}
-            className={`${P}-dash-ap-dot ${i < actionPoints ? `${P}-dash-ap-filled` : ''}`}
-          />
-        ))}
-        <span className={`${P}-dash-ap-label`}>{actionPoints}/6</span>
+      <div className={`${P}-dash-front-day`}>
+        到金沟第 {currentDay} 天
       </div>
+
+      {/* 行动点墨条 */}
+      <div className={`${P}-dash-front-ap`}>
+        <div className={`${P}-dash-front-bars`}>
+          {Array.from({ length: 6 }, (_, i) => (
+            <span
+              key={i}
+              className={`${P}-dash-bar ${i < actionPoints ? `${P}-dash-bar-filled` : ''}`}
+            />
+          ))}
+        </div>
+        <span className={`${P}-dash-front-ap-text`}>
+          余力{['零', '一', '二', '三', '四', '五', '六'][actionPoints]}分
+        </span>
+      </div>
+
+      {/* 水渍分隔 */}
+      <div className={`${P}-dash-front-stain`} />
     </div>
   )
 }
@@ -317,7 +357,7 @@ export default function DashboardDrawer({ onClose }: { onClose: () => void }) {
 
         {/* 内容滚动区 */}
         <div className={`${P}-dash-scroll ${P}-scrollbar`}>
-          <TimeTag />
+          <FrontPage />
           <CharacterGallery onClose={onClose} />
           <SceneMap onClose={onClose} />
           <Objectives />

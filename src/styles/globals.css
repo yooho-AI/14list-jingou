@@ -1984,64 +1984,112 @@ body {
   padding-left: 8px;
 }
 
-/* ── 时间标签 ──────────────────────────────────────── */
+/* ── 笔记本扉页 ───────────────────────────────────── */
 
-.jg-dash-time {
-  margin-top: 16px;
-  padding: 12px 14px;
-  background: rgba(212, 203, 184, 0.04);
-  border: 1px solid rgba(139, 105, 20, 0.15);
-  border-radius: 8px;
+.jg-dash-front {
+  margin-top: 20px;
+  padding: 0 4px 24px;
+  text-align: center;
 }
 
-.jg-dash-time-top {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.jg-dash-time-icon {
-  font-size: 18px;
-}
-
-.jg-dash-time-date {
-  font-size: 15px;
+/* 农历大字 */
+.jg-dash-front-date {
+  font-size: 26px;
+  font-weight: 700;
   color: #d4cbb8;
-  font-weight: 600;
-  font-family: 'KaiTi', 'STKaiti', serif;
+  font-family: 'KaiTi', 'STKaiti', 'AR PL UKai CN', serif;
+  letter-spacing: 6px;
+  /* 毛笔墨迹质感 */
+  text-shadow:
+    1px 1px 0 rgba(44, 36, 22, 0.4),
+    0 0 8px rgba(139, 105, 20, 0.15);
 }
 
-.jg-dash-time-chapter {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 4px;
-}
-
-.jg-dash-time-ap {
+/* 时辰行 */
+.jg-dash-front-shichen {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-top: 8px;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-family: 'KaiTi', 'STKaiti', serif;
+  letter-spacing: 2px;
 }
 
-.jg-dash-ap-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(139, 105, 20, 0.3);
-  transition: background 0.3s;
+.jg-dash-front-line {
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 105, 20, 0.35), transparent);
 }
 
-.jg-dash-ap-filled {
-  background: #8B6914;
-  border-color: #8B6914;
-}
-
-.jg-dash-ap-label {
-  font-size: 10px;
+.jg-dash-front-alias {
+  font-size: 11px;
   color: var(--text-muted);
-  margin-left: 4px;
+  letter-spacing: 0;
+}
+
+/* 章节 */
+.jg-dash-front-chapter {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-family: 'KaiTi', 'STKaiti', serif;
+  letter-spacing: 1px;
+}
+
+.jg-dash-front-day {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* 行动点墨条 */
+.jg-dash-front-ap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.jg-dash-front-bars {
+  display: flex;
+  gap: 3px;
+}
+
+.jg-dash-bar {
+  width: 16px;
+  height: 4px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  transition: all 0.3s;
+}
+
+.jg-dash-bar-filled {
+  background: #8B6914;
+  box-shadow: 0 0 4px rgba(139, 105, 20, 0.3);
+}
+
+.jg-dash-front-ap-text {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'KaiTi', 'STKaiti', serif;
+  letter-spacing: 1px;
+}
+
+/* 水渍分隔线 */
+.jg-dash-front-stain {
+  margin-top: 20px;
+  height: 2px;
+  background:
+    radial-gradient(ellipse at 20%, rgba(139, 105, 20, 0.25) 0%, transparent 50%),
+    radial-gradient(ellipse at 60%, rgba(139, 105, 20, 0.15) 0%, transparent 40%),
+    radial-gradient(ellipse at 85%, rgba(139, 105, 20, 0.2) 0%, transparent 45%);
+  opacity: 0.7;
+  filter: blur(0.5px);
 }
 
 /* ── 角色画廊（照片钉在笔记本） ────────────────────── */
