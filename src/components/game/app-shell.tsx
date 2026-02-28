@@ -1,7 +1,7 @@
 /**
  * [INPUT]: 依赖 store.ts 的 activeTab/setActiveTab/currentDay/currentPeriodIndex/cluesFound/storyRecords/showRecords/toggleRecords/showDashboard/toggleDashboard, bgm.ts, framer-motion
  * [OUTPUT]: 对外提供 AppShell 组件（简易BGM开关 + 三向手势导航）
- * [POS]: 游戏主壳，Header(BgmToggle+笔记本按钮) + Tab路由(左右滑动手势) + TabBar + RecordSheet + DashboardDrawer。被 App.tsx 唯一消费
+ * [POS]: 游戏主壳，Header(SVG图标+衬线时间+渐变背景) + Tab路由(左右滑动手势) + TabBar(发光条) + RecordSheet + DashboardDrawer。被 App.tsx 唯一消费
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
@@ -112,7 +112,9 @@ export default function AppShell({ onMenuOpen }: { onMenuOpen: () => void }) {
       <header className={`${P}-header`}>
         <div className={`${P}-header-left`}>
           <button className={`${P}-icon-btn ${P}-dash-btn`} onClick={toggleDashboard}>
-            📓
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+            </svg>
           </button>
           <span>第{currentDay}天 · {period.name}</span>
         </div>
@@ -122,8 +124,17 @@ export default function AppShell({ onMenuOpen }: { onMenuOpen: () => void }) {
         </div>
         <div className={`${P}-header-right`}>
           <BgmToggle />
-          <button className={`${P}-icon-btn`} onClick={onMenuOpen}>☰</button>
-          <button className={`${P}-icon-btn`} onClick={toggleRecords}>📜</button>
+          <button className={`${P}-icon-btn`} onClick={onMenuOpen}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+          <button className={`${P}-icon-btn`} onClick={toggleRecords}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+          </button>
         </div>
       </header>
 

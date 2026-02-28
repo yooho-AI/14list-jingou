@@ -3,9 +3,9 @@ L2 | 父级: 14list-jingou/CLAUDE.md
 
 ## 成员清单
 
-- `app-shell.tsx`: 游戏主壳——Header(📓笔记本按钮/时间/线索/铜钱MusicPlayer/菜单/📜记录) + Tab路由(左右滑动手势导航) + TabBar(3项) + DashboardDrawer(左滑) + RecordSheet(右滑)
+- `app-shell.tsx`: 游戏主壳——Header(SVG图标+衬线时间+渐变背景) + Tab路由(左右滑动手势导航) + TabBar(3项+发光条) + DashboardDrawer(左滑) + RecordSheet(右滑)
 - `dashboard-drawer.tsx`: 调查笔记本——左侧滑入抽屉，6组件：FrontPage(农历扉页)/CharacterGallery(老照片轮播)/SceneMap(手绘舆图)/Objectives/EvidenceBoard/CaseBoard。Reorder拖拽排序。林承义私人笔记本风格
-- `tab-dialogue.tsx`: 对话Tab——ChatArea(LetterCard/MessageBubble/StreamingBubble/SceneTransitionCard/ClueCard/DayCard) + QuickActions(2x2) + InputArea + InventorySheet
+- `tab-dialogue.tsx`: 对话Tab——ChatArea(LetterCard/MessageBubble(角色色标左边框)/StreamingBubble/SceneTransitionCard/ClueCard/DayCard) + QuickActions(纵向药丸+emoji) + InputArea + InventorySheet
 - `tab-scene.tsx`: 场景Tab——SceneHeroCard(9:16大图) + 相关人物tags + 地点列表(锁定/解锁/当前态)
 - `tab-character.tsx`: 人物Tab——PortraitHero(9:16立绘) + StatGroups + RelationGraph + CharacterGrid + CharacterDossier全屏档案卡
 

@@ -1,7 +1,7 @@
 /**
  * [INPUT]: 无外部依赖（避免循环引用 data.ts）
- * [OUTPUT]: 对外提供 parseStoryParagraph 函数
- * [POS]: lib 的 AI 回复解析器，被 dialogue 组件消费。角色名/数值硬编码避免循环依赖
+ * [OUTPUT]: 对外提供 parseStoryParagraph 函数（返回 narrative + statHtml + charColor）
+ * [POS]: lib 的 AI 回复解析器，被 dialogue 组件消费。角色名/数值硬编码避免循环依赖。charColor 驱动气泡左边框角色色标
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
@@ -64,10 +64,11 @@ function colorizeStats(line: string): string {
 
 // ── 主解析函数 ────────────────────────────────────────
 
-export function parseStoryParagraph(content: string): { narrative: string; statHtml: string } {
+export function parseStoryParagraph(content: string): { narrative: string; statHtml: string; charColor: string | null } {
   const lines = content.split('\n').filter(Boolean)
   const narrativeParts: string[] = []
   const statParts: string[] = []
+  let charColor: string | null = null
 
   for (const raw of lines) {
     const line = raw.trim()
@@ -78,13 +79,14 @@ export function parseStoryParagraph(content: string): { narrative: string; statH
       continue
     }
 
-    // 角色对话：【刘金爷】你来了
+    // 角色对话：【刘金爷】你来了 → 去掉括号，名字作上方小字标签
     const charMatch = line.match(/^【([^】]+)】(.*)/)
     if (charMatch) {
       const [, charName, dialogue] = charMatch
       const color = CHARACTER_COLORS[charName] || DEFAULT_COLOR
+      if (!charColor) charColor = color
       narrativeParts.push(
-        `<p class="dialogue-line"><span class="char-name" style="color:${color}">【${charName}】</span>${parseInlineContent(dialogue)}</p>`,
+        `<p class="dialogue-line"><span class="char-name" style="color:${color}">${charName}</span>${parseInlineContent(dialogue)}</p>`,
       )
       continue
     }
@@ -105,5 +107,6 @@ export function parseStoryParagraph(content: string): { narrative: string; statH
     statHtml: statParts.length > 0
       ? `<div class="stat-changes">${statParts.join('')}</div>`
       : '',
+    charColor,
   }
 }

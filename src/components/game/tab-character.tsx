@@ -217,11 +217,11 @@ function RelationGraph({ onNodeClick }: { onNodeClick: (id: string) => void }) {
           <g key={`line-${node.id}`}>
             <line
               x1={sx} y1={sy} x2={ex} y2={ey}
-              stroke={isSelected ? node.char.themeColor : 'rgba(139,105,20,0.25)'}
+              stroke={isSelected ? node.char.themeColor : 'rgba(139,105,20,0.2)'}
               strokeWidth={isSelected ? 2 : 1}
               strokeDasharray={isSelected ? 'none' : '4 3'}
             />
-            <rect x={mx - 28} y={my - 8} width={56} height={16} rx={4} fill="var(--bg-primary)" opacity={0.9} />
+            <rect x={mx - 28} y={my - 8} width={56} height={16} rx={4} fill="rgba(26,22,16,0.9)" />
             <text x={mx} y={my + 3} textAnchor="middle" fontSize={9} fontWeight={600} fill={rel.color}>{rel.text}</text>
           </g>
         )

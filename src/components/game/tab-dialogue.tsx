@@ -1,7 +1,7 @@
 /**
- * [INPUT]: 依赖 store.ts 的 messages/isTyping/streamingContent/sendMessage/inventory/useItem/cluesFound, parser.ts, data.ts
+ * [INPUT]: 依赖 store.ts 的 messages/isTyping/streamingContent/sendMessage/inventory/useItem/cluesFound, parser.ts(含charColor), data.ts
  * [OUTPUT]: 对外提供 TabDialogue 组件 + SceneTransitionCard + ClueCard + DayCard 富消息组件
- * [POS]: 对话 Tab，聊天气泡 + 富消息卡片 + 快捷操作 + 道具栏 + 输入框。被 app-shell 消费
+ * [POS]: 对话 Tab，聊天气泡(角色色标左边框) + 富消息卡片 + 快捷操作(纵向药丸+emoji) + 道具栏 + 输入框。被 app-shell 消费
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
@@ -12,6 +12,14 @@ import type { Message } from '../../lib/store'
 import { parseStoryParagraph } from '../../lib/parser'
 
 const P = 'jg'
+
+// 快捷操作装饰 emoji 映射
+const ACTION_EMOJI: Record<string, string> = {
+  '打听消息': '🗣️',
+  '四处观察': '👁️',
+  '安静等待': '🌙',
+  '自由行动': '🚶',
+}
 
 // ── LetterCard ────────────────────────────────────────
 
@@ -193,14 +201,15 @@ function MessageBubble({ msg }: { msg: Message }) {
     )
   }
 
-  // assistant
-  const { narrative, statHtml } = parseStoryParagraph(msg.content)
+  // assistant — 角色色标注入左边框
+  const { narrative, statHtml, charColor } = parseStoryParagraph(msg.content)
   return (
     <motion.div
       key={msg.id}
       className={`${P}-bubble-npc`}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
+      style={charColor ? { borderLeftColor: charColor } : undefined}
     >
       <div className={`${P}-story-paragraph`} dangerouslySetInnerHTML={{ __html: narrative }} />
       {statHtml && <div dangerouslySetInnerHTML={{ __html: statHtml }} />}
@@ -211,9 +220,9 @@ function MessageBubble({ msg }: { msg: Message }) {
 // ── StreamingBubble ───────────────────────────────────
 
 function StreamingBubble({ content }: { content: string }) {
-  const { narrative, statHtml } = parseStoryParagraph(content)
+  const { narrative, statHtml, charColor } = parseStoryParagraph(content)
   return (
-    <div className={`${P}-bubble-npc`}>
+    <div className={`${P}-bubble-npc`} style={charColor ? { borderLeftColor: charColor } : undefined}>
       <div className={`${P}-story-paragraph`} dangerouslySetInnerHTML={{ __html: narrative }} />
       {statHtml && <div dangerouslySetInnerHTML={{ __html: statHtml }} />}
     </div>
@@ -332,7 +341,7 @@ export default function TabDialogue() {
             onClick={() => handleQuick(action)}
             disabled={isTyping}
           >
-            {action}
+            {ACTION_EMOJI[action] ?? '▸'} {action}
           </button>
         ))}
       </div>
