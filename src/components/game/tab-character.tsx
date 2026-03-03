@@ -1,7 +1,7 @@
 /**
  * [INPUT]: 依赖 store.ts 的 characters/currentCharacter/selectCharacter/characterStats/currentDay
  * [OUTPUT]: 对外提供 TabCharacter 组件 + CharacterDossier 全屏档案卡
- * [POS]: 人物 Tab，当前人物卡 + SVG关系图谱 + 全部人物 + 点击展开全屏档案卡。被 app-shell 消费
+ * [POS]: 人物 Tab，2x2角色网格(聊天按钮+mini好感条) + SVG关系图谱 + CharacterDossier overlay+sheet + CharacterChat
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
@@ -13,37 +13,6 @@ import type { StatMeta, Character } from '../../lib/store'
 import CharacterChat from './character-chat'
 
 const P = 'jg'
-
-// ── 图片/emoji 渲染辅助 ──────────────────────────────
-
-function AssetBox({ src, size = 120 }: { src: string; size?: number }) {
-  if (src.startsWith('/')) {
-    return <img src={src} alt="" style={{ width: size, height: size * 16 / 9, objectFit: 'cover', borderRadius: 12 }} />
-  }
-  return (
-    <div style={{
-      width: size, height: size * 16 / 9,
-      background: 'var(--bg-hover)', borderRadius: 12,
-      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.4,
-    }}>
-      {src}
-    </div>
-  )
-}
-
-function SmallAvatar({ src, size = 28 }: { src: string; size?: number }) {
-  if (src.startsWith('/')) {
-    return <img src={src} alt="" style={{ width: size, height: size, objectFit: 'cover', borderRadius: 8, flexShrink: 0 }} />
-  }
-  return (
-    <span style={{
-      width: size, height: size, borderRadius: 8, flexShrink: 0,
-      background: 'var(--bg-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.6,
-    }}>
-      {src}
-    </span>
-  )
-}
 
 // ── StatBar ───────────────────────────────────────────
 
@@ -81,7 +50,7 @@ function getRelationLabel(char: Character, stats: Record<string, number>): { tex
   return { text: STATIC_RELATIONS[char.id] ?? char.title, color: 'var(--text-muted)' }
 }
 
-// ── 角色档案卡（全屏卷宗） ───────────────────────────
+// ── 角色档案卡（overlay + sheet） ───────────────────────
 
 function CharacterDossier({ char, stats, onClose }: {
   char: Character
@@ -92,14 +61,23 @@ function CharacterDossier({ char, stats, onClose }: {
   const rel = getRelationLabel(char, stats)
 
   return (
-    <motion.div
-      className={`${P}-dossier-overlay`}
-      initial={{ x: '100%' }}
-      animate={{ x: 0 }}
-      exit={{ x: '100%' }}
-      transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-    >
-      <div className={`${P}-dossier ${P}-scrollbar`}>
+    <>
+      <motion.div
+        className={`${P}-dossier-overlay`}
+        style={{ background: 'rgba(0,0,0,0.5)', overflow: 'visible' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+      />
+      <motion.div
+        className={`${P}-record-sheet`}
+        style={{ zIndex: 52, overflowY: 'auto' }}
+        initial={{ x: '100%' }}
+        animate={{ x: 0 }}
+        exit={{ x: '100%' }}
+        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+      >
         {/* 关闭 */}
         <button className={`${P}-dossier-close`} onClick={onClose}>✕</button>
 
@@ -174,8 +152,8 @@ function CharacterDossier({ char, stats, onClose }: {
             ))}
           </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </>
   )
 }
 
@@ -263,8 +241,6 @@ export default function TabCharacter() {
   const [chatChar, setChatChar] = useState<string | null>(null)
 
   const available = getAvailableCharacters(currentDay, characters)
-  const char = currentCharacter ? characters[currentCharacter] : null
-  const stats = currentCharacter ? (characterStats[currentCharacter] ?? {}) : {}
 
   const dossierChar = dossierCharId ? characters[dossierCharId] : null
   const dossierStats = dossierCharId ? (characterStats[dossierCharId] ?? {}) : {}
@@ -277,69 +253,95 @@ export default function TabCharacter() {
   return (
     <div style={{ height: '100%', overflowY: 'auto', padding: 12 }} className={`${P}-scrollbar`}>
 
-      {/* ── 当前人物 ── */}
-      <div className={`${P}-section-title`}>👤 当前人物</div>
-      {char ? (
-        <div
-          className={`${P}-card`}
-          style={{ display: 'flex', gap: 14, marginBottom: 16, padding: 14, cursor: 'pointer' }}
-          onClick={() => setDossierCharId(currentCharacter)}
-        >
-          <AssetBox src={char.portrait} size={100} />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 2 }}>{char.name}</h3>
-            <p style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8 }}>{char.title} · {char.description}</p>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>数值</div>
-            {char.statMetas.map((meta) => (
-              <StatBar key={meta.key} meta={meta} value={stats[meta.key] ?? 0} />
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className={`${P}-placeholder`} style={{ marginBottom: 16 }}>
-          <div className={`${P}-placeholder-icon`}>👤</div>
-          <p>选择一个角色开始互动</p>
-        </div>
-      )}
-
-      {/* ── 人物关系图谱 ── */}
-      <div className={`${P}-section-title`}>🔗 人物关系</div>
-      <div className={`${P}-card`} style={{ padding: 8, marginBottom: 16 }}>
-        <RelationGraph onNodeClick={handleCharClick} />
-      </div>
-
-      {/* ── 所有人物 ── */}
-      <div className={`${P}-section-title`}>👥 所有人物</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        {Object.entries(available).map(([id, c]) => {
-          const isActive = id === currentCharacter
+      {/* ── 角色网格 (2x2) ── */}
+      <h4 style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, paddingLeft: 4 }}>
+        👤 人物一览
+      </h4>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 20 }}>
+        {Object.entries(available).map(([id, char]) => {
+          const stats = characterStats[id] ?? {}
+          const rel = getRelationLabel(char, stats)
+          const relationMeta = char.statMetas.find((m) => m.category === 'relation')
+          const affValue = relationMeta ? (stats[relationMeta.key] ?? 0) : 0
           return (
-            <div key={id} style={{ position: 'relative' }}>
+            <button
+              key={id}
+              onClick={() => handleCharClick(id)}
+              style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                padding: 10, borderRadius: 12,
+                background: 'var(--bg-card)',
+                border: currentCharacter === id ? `2px solid ${char.themeColor}` : '1px solid rgba(0,0,0,0.06)',
+                cursor: 'pointer', transition: 'all 0.2s',
+                position: 'relative',
+              }}
+            >
               {/* 聊天按钮 */}
               <div
                 onClick={(e) => { e.stopPropagation(); setChatChar(id) }}
                 style={{
-                  position: 'absolute', top: 4, left: 4,
-                  width: 24, height: 24, borderRadius: '50%',
-                  background: `${c.themeColor}18`,
-                  border: `1px solid ${c.themeColor}30`,
+                  position: 'absolute', top: 6, left: 6,
+                  width: 28, height: 28, borderRadius: '50%',
+                  background: `${char.themeColor}18`,
+                  border: `1px solid ${char.themeColor}30`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   cursor: 'pointer', zIndex: 1,
                 }}
               >
-                <ChatCircleDots size={14} weight="fill" color={c.themeColor} />
+                <ChatCircleDots size={16} weight="fill" color={char.themeColor} />
               </div>
-              <button
-                className={`${P}-tag-btn ${isActive ? `${P}-tag-btn-active` : ''}`}
-                onClick={() => handleCharClick(id)}
-              >
-                <SmallAvatar src={c.portrait} />
-                <span>{c.name}</span>
-              </button>
-            </div>
+              {char.portrait.startsWith('/') ? (
+                <img
+                  src={char.portrait}
+                  alt={char.name}
+                  style={{
+                    width: 56, height: 56, borderRadius: '50%',
+                    objectFit: 'cover', objectPosition: 'center top',
+                    border: `2px solid ${char.themeColor}44`,
+                    marginBottom: 6,
+                  }}
+                />
+              ) : (
+                <span style={{
+                  width: 56, height: 56, borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 28, background: 'var(--bg-hover)',
+                  border: `2px solid ${char.themeColor}44`,
+                  marginBottom: 6,
+                }}>
+                  {char.portrait}
+                </span>
+              )}
+              <span style={{ fontSize: 12, fontWeight: 500, color: char.themeColor }}>
+                {char.name}
+              </span>
+              <span style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4 }}>
+                {char.title}
+              </span>
+              {/* Mini affection bar */}
+              <div style={{ width: '80%', height: 3, borderRadius: 2, background: 'rgba(139,105,20,0.1)' }}>
+                <div style={{
+                  height: '100%', borderRadius: 2, background: char.themeColor,
+                  width: `${Math.min(affValue, 100)}%`, transition: 'width 0.5s ease',
+                }} />
+              </div>
+              <span style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 2 }}>
+                {rel.text}
+              </span>
+            </button>
           )
         })}
       </div>
+
+      {/* ── 人物关系图谱 ── */}
+      <h4 style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, paddingLeft: 4 }}>
+        🔗 人物关系
+      </h4>
+      <div className={`${P}-card`} style={{ padding: 8, marginBottom: 16 }}>
+        <RelationGraph onNodeClick={handleCharClick} />
+      </div>
+
+      <div style={{ height: 16 }} />
 
       {/* ── 全屏档案卡 ── */}
       <AnimatePresence>
