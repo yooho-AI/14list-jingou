@@ -7,8 +7,10 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { ChatCircleDots } from '@phosphor-icons/react'
 import { useGameStore, getAvailableCharacters } from '../../lib/store'
 import type { StatMeta, Character } from '../../lib/store'
+import CharacterChat from './character-chat'
 
 const P = 'jg'
 
@@ -258,6 +260,7 @@ function RelationGraph({ onNodeClick }: { onNodeClick: (id: string) => void }) {
 export default function TabCharacter() {
   const { characters, currentCharacter, selectCharacter, characterStats, currentDay } = useGameStore()
   const [dossierCharId, setDossierCharId] = useState<string | null>(null)
+  const [chatChar, setChatChar] = useState<string | null>(null)
 
   const available = getAvailableCharacters(currentDay, characters)
   const char = currentCharacter ? characters[currentCharacter] : null
@@ -311,14 +314,29 @@ export default function TabCharacter() {
         {Object.entries(available).map(([id, c]) => {
           const isActive = id === currentCharacter
           return (
-            <button
-              key={id}
-              className={`${P}-tag-btn ${isActive ? `${P}-tag-btn-active` : ''}`}
-              onClick={() => handleCharClick(id)}
-            >
-              <SmallAvatar src={c.portrait} />
-              <span>{c.name}</span>
-            </button>
+            <div key={id} style={{ position: 'relative' }}>
+              {/* 聊天按钮 */}
+              <div
+                onClick={(e) => { e.stopPropagation(); setChatChar(id) }}
+                style={{
+                  position: 'absolute', top: 4, left: 4,
+                  width: 24, height: 24, borderRadius: '50%',
+                  background: `${c.themeColor}18`,
+                  border: `1px solid ${c.themeColor}30`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', zIndex: 1,
+                }}
+              >
+                <ChatCircleDots size={14} weight="fill" color={c.themeColor} />
+              </div>
+              <button
+                className={`${P}-tag-btn ${isActive ? `${P}-tag-btn-active` : ''}`}
+                onClick={() => handleCharClick(id)}
+              >
+                <SmallAvatar src={c.portrait} />
+                <span>{c.name}</span>
+              </button>
+            </div>
           )
         })}
       </div>
@@ -331,6 +349,13 @@ export default function TabCharacter() {
             stats={dossierStats}
             onClose={() => setDossierCharId(null)}
           />
+        )}
+      </AnimatePresence>
+
+      {/* ── Character Chat ── */}
+      <AnimatePresence>
+        {chatChar && characters[chatChar] && (
+          <CharacterChat charId={chatChar} onClose={() => setChatChar(null)} />
         )}
       </AnimatePresence>
     </div>

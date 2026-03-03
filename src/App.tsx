@@ -53,6 +53,8 @@ function StartScreen() {
 
   const handleCrawlEnd = useCallback(() => {
     initGame()
+    // 自动发送第一条消息触发 AI 开场
+    setTimeout(() => useGameStore.getState().sendMessage('开始游戏'), 500)
   }, [initGame])
 
   return (
